@@ -29,3 +29,14 @@
 Based on old good https://github.com/minibao/babylon-vite
 
 **Made by https://babylonpress.org/**
+
+## usefull links
+
+- [nose for direction](https://playground.babylonjs.com/#9GE7HV)
+- [from docs ,physics characterController class](https://playground.babylonjs.com/#WO0H1U#13)
+- [raycast and linear velocity](https://playground.babylonjs.com/#GZYGLJ#21)
+- [turns to fpv when zoom and includes nose](https://playground.babylonjs.com/#2K0IJP#3)
+- [using pyhisics](https://github.com/armomu/ergoudan)
+- [no physics, moveWithCollision() function](https://github.com/ssatguru/BabylonJS-CharacterController)
+- [lets ckech](https://playground.babylonjs.com/#9GE7HV#24)
+- [muy util](https://playground.babylonjs.com/#9GE7HV#9)

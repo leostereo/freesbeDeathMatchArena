@@ -7,11 +7,11 @@ export class Ground {
   constructor(private scene: Scene) {
     this.scene = scene;
     this._createGround();
-    this._createSphere();
+    //this._createSphere();
   }
 
   _createGround(): void {
-    const mesh = MeshBuilder.CreateGround("ground", { width: 10, height: 10 }, this.scene);
+    const mesh = MeshBuilder.CreateGround("ground", { width: 30, height: 30 }, this.scene);
     new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0 }, this.scene);
   }
 
@@ -21,4 +21,6 @@ export class Ground {
 
     new PhysicsAggregate(mesh, PhysicsShapeType.SPHERE, { mass: 1, restitution: 0.75 }, this.scene);
   }
+
+
 }

@@ -6,8 +6,9 @@ import { Scene } from "@babylonjs/core/scene";
 import { Tools } from "@babylonjs/core/Misc/tools";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
-// import { LoadAssetContainerAsync } from "@babylonjs/core/Loading/sceneLoader";
 import { Ground } from "./ground";
+import { Character } from "./character/Character"
+import { Camera } from "@babylonjs/core";
 
 export default class MainScene {
   private camera: ArcRotateCamera;
@@ -20,9 +21,11 @@ export default class MainScene {
   }
 
   _setCamera(scene: Scene): void {
-    this.camera = new ArcRotateCamera("camera", Tools.ToRadians(90), Tools.ToRadians(80), 20, Vector3.Zero(), scene);
-    this.camera.attachControl(this.canvas, true);
-    this.camera.setTarget(Vector3.Zero());
+    // Creates, angles, distances and targets the camera
+    var camera = new ArcRotateCamera("camera", 0, Math.PI/3, 50, new Vector3(0, 0, 0), scene);
+
+    // This positions the camera
+    //camera.setPosition(new Vector3(0, 0, -10));
   }
 
   _setLight(scene: Scene): void {
@@ -43,5 +46,6 @@ export default class MainScene {
   async loadComponents(): Promise<void> {
     // Load your files in order
     new Ground(this.scene);
+    new Character(this.scene);
   }
 }
