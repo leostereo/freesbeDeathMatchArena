@@ -22,7 +22,7 @@ export default class MainScene {
 
   _setCamera(scene: Scene): void {
     // Creates, angles, distances and targets the camera
-    var camera = new ArcRotateCamera("camera", 0, Math.PI/3, 50, new Vector3(0, 0, 0), scene);
+    var camera = new ArcRotateCamera("camera", 0, Math.PI/3, 30, new Vector3(0, 0, 0), scene);
 
     // This positions the camera
     //camera.setPosition(new Vector3(0, 0, -10));
