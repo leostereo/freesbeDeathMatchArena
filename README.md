@@ -40,3 +40,5 @@ Based on old good https://github.com/minibao/babylon-vite
 - [no physics, moveWithCollision() function](https://github.com/ssatguru/BabylonJS-CharacterController)
 - [lets ckech](https://playground.babylonjs.com/#9GE7HV#24)
 - [muy util](https://playground.babylonjs.com/#9GE7HV#9)
+- [rotating particles](https://forum.babylonjs.com/t/emitter-rotation-particles/41819/3)
+- [throwing balls](https://playground.babylonjs.com/#8HZFUZ#230)

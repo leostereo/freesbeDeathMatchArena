@@ -1,19 +1,122 @@
-import { CharacterShapeOptions, FollowCamera, KeyboardInfo, Matrix, Mesh, MeshBuilder, PhysicsCharacterController, PointerEventTypes, PointerInfo, Quaternion, Scene, TransformNode, Vector3 } from "@babylonjs/core";
-import { CustomCharacterController } from "./CustomCharacterController";
+import { CharacterShapeOptions, Color3, FollowCamera, KeyboardEventTypes, KeyboardInfo, Matrix, Mesh, MeshBuilder, PhysicsCharacterController, PointerEventTypes, PointerInfo, Quaternion, Scene, Tools, TransformNode, Vector3 } from "@babylonjs/core";
+import { CharacterControllerState } from "./CharacterControllerState";
+import { CharacterControllerAnimationManager } from "./CharacterControllerAnimationManager";
 
-export class ThirdPersonCharacterController extends CustomCharacterController {
+
+/**
+ *  CONTROLS THE CHARACTER
+ */
+
+export class ThirdPersonCharacterController {
+
+    public height: number = 1.8;
+    public radius: number = 0.6;
+    public displayCapsule: Mesh;
+    public lookTarget: Mesh;
+    protected nose: Mesh;
+    protected CoT: TransformNode;
+    protected CC: PhysicsCharacterController;
+    protected state: CharacterControllerState;
+    protected scene: Scene;
+    protected isMouseDown: boolean = false;
+    protected isKeyDown: boolean = false;
+    protected isBlockingKeyboard: boolean = false;
+
+    protected CCAM: CharacterControllerAnimationManager;
+
+    /**
+     * Creates a Cot - center of transformation.
+     * Creates a capsule if not passed , set Cot as parent
+     * Creates characterShape
+     * Creates CharacterController(CC) , passing the characterShape.
+     * Creates a CharacterState, pass the CC.
+     * 
+     */
     public constructor(scene: Scene, position: Vector3, height?: number, radius?: number, displayCapsule?: Mesh) {
-        super(scene, position, height, radius, displayCapsule);
+        this.scene = scene;
+        if (height) {
+            this.height = height;
+        }
+        if (radius) {
+            this.radius = radius;
+        }
+        this.CoT = new TransformNode("CC-CoT", scene)
+        this.CoT.position = position;
+        // this.lookTarget = MeshBuilder.CreateLines("CC-lookTarget", {
+        //     points: [
+        //         new Vector3(0, 0, 0),
+        //         new Vector3(0, 0, 0),
+        //     ], // Two points coincide to form a zero-length line segment
+        // }, scene);
+        // this.lookTarget.isVisible = false;
+        // this.lookTarget.isPickable = false;
+        // this.lookTarget.position = Vector3.Zero();
+        // this.lookTarget.parent = this.CoT;
+
+        // Physics shape for the character
+        if (displayCapsule) {
+            this.displayCapsule = displayCapsule;
+        } else {
+            this.displayCapsule = MeshBuilder.CreateCapsule("CC-capsule", { height: this.height, radius: this.radius }, this.scene);
+        }
+
+        this.displayCapsule.position = Vector3.Zero();
+        this.displayCapsule.parent = this.CoT;
+        const shapeOptions: CharacterShapeOptions = {
+            capsuleHeight: this.height,
+            capsuleRadius: this.radius,
+        }
+
+                //nose
+                this.nose = MeshBuilder.CreateBox("nose", {
+                    height: 0.4,
+                    width: 0.8,
+                    depth: 0.4,
+                }, this.scene)
+                this.nose.position = new Vector3(3.4, 1.8, 0)
+                this.nose.parent = this.displayCapsule
+                this.nose.isVisible = false;
+
+                // this.nose.updateFacetData();
+                // const positions = this.nose.getFacetLocalPositions();
+                // const normals = this.nose.getFacetLocalNormals();
+            
+                // var lines = [];
+                // for (var i = 0; i < positions.length; i++) {
+                //     var line:Vector3[] = [ positions[i], positions[i].add(normals[i]) ];
+                //     lines.push(line);
+                // }
+                // var lineSystem = MeshBuilder.CreateLineSystem("ls", {lines: lines}, scene);
+                // lineSystem.color = Color3.Green();
+
+
+
+
+                
+        this.CC = new PhysicsCharacterController(position, shapeOptions, this.scene);
+        // Player/Character state
+        this.state = new CharacterControllerState(this.CC, this.scene);
+        this.CCAM = new CharacterControllerAnimationManager(this.scene);
+    }
+
+    bindEvents() {
+        this.scene.onBeforeRenderObservable.add(() => this.onBeforeRender())
+        this.scene.onAfterPhysicsObservable.add(() => this.onAfterPhysics())
+        this.scene.onPointerObservable.add((pointerInfo: PointerInfo) => this.onPointer(pointerInfo))
+        this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => {
+            if (this.isBlockingKeyboard) {
+                return
+            }
+            this.onKeyboard(kbInfo)
+        })
     }
 
     onBeforeRender() {
-        //console.log(this.state.state)
         // Display tick update: compute new camera position/target, update the capsule for the character display
         this.CoT.position.copyFrom(this.CC.getPosition());
         let x = this.state.inputDirection.x;
         let z = this.state.inputDirection.z;
         if (x !== 0 || z !== 0) {
-            this.scene.getAnimationGroupByName('walking')?.play();
             if (!this.displayCapsule.rotationQuaternion) {
                 this.displayCapsule.rotationQuaternion = this.displayCapsule.rotation.toQuaternion();
             }
@@ -34,7 +137,6 @@ export class ThirdPersonCharacterController extends CustomCharacterController {
                 0.2,
             );
         }
-        this.scene.getAnimationGroupByName('idle')?.play();
     }
 
     onAfterPhysics() {
@@ -54,6 +156,9 @@ export class ThirdPersonCharacterController extends CustomCharacterController {
         }
         Quaternion.FromEulerAnglesToRef(0, camera.rotation.y, 0, this.state.characterOrientation)
         let desiredLinearVelocity = this.state.getDesiredVelocity(dt, support, this.state.characterOrientation, this.CC.getVelocity())
+
+        this.CCAM.updateAnimationFromVelocity(desiredLinearVelocity);
+
         this.CC.setVelocity(desiredLinearVelocity)
 
         this.CC.integrate(dt, support, this.state.characterGravity)
@@ -82,6 +187,64 @@ export class ThirdPersonCharacterController extends CustomCharacterController {
     }
 
     onKeyboard(kbInfo: KeyboardInfo) {
-        super.onKeyboard(kbInfo);
+        // Input to direction
+        // from keys down/up, update the Vector3 inputDirection to match the intended direction. Jump with space
+        switch (kbInfo.type) {
+            case KeyboardEventTypes.KEYDOWN:
+                this.isKeyDown = true
+                if (kbInfo.event.key == 'w' || kbInfo.event.key == 'ArrowUp') {
+                    this.state.inputDirection.x = -1
+                } else if (kbInfo.event.key == 's' || kbInfo.event.key == 'ArrowDown') {
+                    this.state.inputDirection.x = 1
+                } else if (kbInfo.event.key == 'a' || kbInfo.event.key == 'ArrowLeft') {
+                    this.state.inputDirection.z = -1
+                } else if (kbInfo.event.key == 'd' || kbInfo.event.key == 'ArrowRight') {
+                    this.state.inputDirection.z = 1
+                } else if (kbInfo.event.key == ' ') {
+                    this.state.wantJump = true
+                } else if (kbInfo.event.key == 'h') {
+                    this.state.isThrowingFreesbe = true;
+                } if (kbInfo.event.shiftKey) {
+                } else if (kbInfo.event.key == 'j') {
+                    this.state.isCrossPunching = true;
+                } if (kbInfo.event.shiftKey) {
+                    this.state.isRunning = true
+                }
+                break
+            case KeyboardEventTypes.KEYUP:
+                this.isKeyDown = false
+                this.state.isRunning = false
+                if (kbInfo.event.key == 'w' || kbInfo.event.key == 's' || kbInfo.event.key == 'ArrowUp' || kbInfo.event.key == 'ArrowDown') {
+                    this.state.inputDirection.x = 0
+                }
+                if (kbInfo.event.key == 'a' || kbInfo.event.key == 'd' || kbInfo.event.key == 'ArrowLeft' || kbInfo.event.key == 'ArrowRight') {
+                    this.state.inputDirection.z = 0
+                } else if (kbInfo.event.key == ' ') {
+                    this.state.wantJump = false
+                } else if (kbInfo.event.key === 'h') {
+                    this.state.isThrowingFreesbe = false;
+                } else if (kbInfo.event.key === 'j') {
+                    this.state.isCrossPunching = false;
+                }
+                break
+        }
+
+        const euler = this.displayCapsule.rotationQuaternion?.toEulerAngles();
+        if (euler) {
+            // console.log(euler?._y*Math.PI);
+            // // console.log(Tools.ToDegrees(euler._y));
+            const degrees = Tools.ToDegrees(euler._y);
+            const z = Math.sin(degrees);
+            const x = Math.cos(degrees)
+            // console.log(x,z)
+            
+            this.CCAM.setEmitterInputDirection(new Vector3(x,0,z))
+            this.CCAM.setEmitterAngle(Tools.ToDegrees(euler._y));
+        }
+
+        const normal = this.nose.getFacetNormal(4).normalize();
+        this.CCAM.setEmitterNormal(normal);
+        this.CCAM.setEmitterPosition(this.nose.getAbsolutePosition())
+        this.CCAM.updateAnimation(this.state.isThrowingFreesbe, this.state.isCrossPunching)
     }
 }

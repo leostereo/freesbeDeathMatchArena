@@ -1,4 +1,5 @@
 import { CharacterSupportedState, CharacterSurfaceInfo, PhysicsCharacterController, Quaternion, Vector3 } from "@babylonjs/core";
+import { CharacterControllerAnimationManager } from "./CharacterControllerAnimationManager";
 
 enum CharacterState {
     UNKNOWN = '',
@@ -11,8 +12,10 @@ export class CharacterControllerState {
     public state: CharacterState = CharacterState.ON_GROUND;
     public inAirSpeed = 8.0;
     public onGroundSpeed = 10.0;
-    public jumpHeight = 1.5;
+    public jumpHeight = 2.5;
     public wantJump = false;
+    public isThrowingFreesbe = false;
+    public isCrossPunching = false;
     public inputDirection = new Vector3(0, 0, 0);
     public forwardLocalSpace = new Vector3(0, 0, 1);
     public characterOrientation = Quaternion.Identity();
@@ -21,8 +24,9 @@ export class CharacterControllerState {
 
     protected characterController: PhysicsCharacterController;
 
-    public constructor(characterController: PhysicsCharacterController) {
+    public constructor(characterController: PhysicsCharacterController, private scene) {
         this.characterController = characterController
+
     }
 
     getNextState(supportInfo: CharacterSurfaceInfo): CharacterState {
@@ -76,6 +80,9 @@ export class CharacterControllerState {
             if (this.isRunning) {
                 speed *= 3.0
             }
+            if(this.isThrowingFreesbe || this.isCrossPunching){
+                this.inputDirection = new Vector3(0,0,0);
+            }
             let desiredVelocity = this.inputDirection.scale(speed).applyRotationQuaternion(characterOrientation)
 
             let outputVelocity = this.characterController.calculateMovement(deltaTime, forwardWorld, supportInfo.averageSurfaceNormal, currentVelocity, supportInfo.averageSurfaceVelocity, desiredVelocity, upWorld)
@@ -103,4 +110,5 @@ export class CharacterControllerState {
         }
         return Vector3.Zero()
     }
+
 }

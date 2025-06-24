@@ -1,5 +1,5 @@
 import { CharacterShapeOptions, FreeCamera, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsCharacterController, PointerEventTypes, PointerInfo, Quaternion, Scene, TransformNode, Vector3 } from "@babylonjs/core";
-import { CharacterControllerState } from "./CharacterControllerState";
+import { CharacterControllerState } from "../CharacterControllerState";
 
 export class CustomCharacterController {
     public height: number = 1.8;
