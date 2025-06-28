@@ -22,7 +22,7 @@ export class Ground {
   constructor(private scene: Scene) {
     this.scene = scene;
     this._createGround();
-    this._createElevator();
+   // this._createElevator();
     this._generateRandomPlatforms();
   }
 

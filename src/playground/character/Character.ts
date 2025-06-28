@@ -1,6 +1,7 @@
 import { ArcRotateCamera, AxesViewer, CharacterSupportedState, FreeCamera, KeyboardEventTypes, LoadAssetContainerAsync, MeshBuilder, PhysicsCharacterController, Quaternion, Scene, Space, Vector3 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { ThirdPersonCharacterController } from "./classes/ThirdPersonCharacterController";
+import { CharacterAnimationContainer } from "./classes/CCAContainer";
 
 /**
  * Represents a character.
@@ -36,9 +37,12 @@ export class Character {
 
         // PhysicsCharacter
         let characterPosition = new Vector3(5.0, 32.0, -5.0);
-        const TPCC = new ThirdPersonCharacterController(this.scene, characterPosition);
 
-       
+        let CAC = new CharacterAnimationContainer(res.animationGroups, this.scene)
+
+        const TPCC = new ThirdPersonCharacterController(this.scene, characterPosition, CAC);
+
+
         TPCC.bindEvents();
 
         //bind character mesh to displaycapsule

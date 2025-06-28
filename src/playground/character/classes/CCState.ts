@@ -1,5 +1,4 @@
 import { CharacterSupportedState, CharacterSurfaceInfo, PhysicsCharacterController, Quaternion, Vector3 } from "@babylonjs/core";
-import { CharacterControllerAnimationManager } from "./CharacterControllerAnimationManager";
 
 enum CharacterState {
     UNKNOWN = '',

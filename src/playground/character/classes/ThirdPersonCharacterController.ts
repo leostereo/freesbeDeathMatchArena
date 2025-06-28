@@ -1,6 +1,8 @@
 import { CharacterShapeOptions, Color3, FollowCamera, KeyboardEventTypes, KeyboardInfo, Matrix, Mesh, MeshBuilder, PhysicsCharacterController, PointerEventTypes, PointerInfo, Quaternion, Scene, Tools, TransformNode, Vector3 } from "@babylonjs/core";
-import { CharacterControllerState } from "./CharacterControllerState";
-import { CharacterControllerAnimationManager } from "./CharacterControllerAnimationManager";
+import { CharacterControllerState } from "./CCState";
+import { CharacterAnimationContainer } from "./CCAContainer";
+import { CharacterControllerAnimationManager } from "./CCAManager";
+import { CharacterControllerAnimationEventBinder } from "./CCAEBinder";
 
 
 /**
@@ -22,7 +24,10 @@ export class ThirdPersonCharacterController {
     protected isKeyDown: boolean = false;
     protected isBlockingKeyboard: boolean = false;
 
+    protected CAM: CharacterAnimationContainer;
     protected CCAM: CharacterControllerAnimationManager;
+    protected CCAEB: CharacterControllerAnimationEventBinder;
+    //protected CCAM: CharacterControllerAnimationManager;
 
     /**
      * Creates a Cot - center of transformation.
@@ -32,7 +37,10 @@ export class ThirdPersonCharacterController {
      * Creates a CharacterState, pass the CC.
      * 
      */
-    public constructor(scene: Scene, position: Vector3, height?: number, radius?: number, displayCapsule?: Mesh) {
+    public constructor(scene: Scene, position: Vector3, animationContainer: CharacterAnimationContainer,
+        height?: number, radius?: number, displayCapsule?: Mesh,
+
+    ) {
         this.scene = scene;
         if (height) {
             this.height = height;
@@ -42,16 +50,6 @@ export class ThirdPersonCharacterController {
         }
         this.CoT = new TransformNode("CC-CoT", scene)
         this.CoT.position = position;
-        // this.lookTarget = MeshBuilder.CreateLines("CC-lookTarget", {
-        //     points: [
-        //         new Vector3(0, 0, 0),
-        //         new Vector3(0, 0, 0),
-        //     ], // Two points coincide to form a zero-length line segment
-        // }, scene);
-        // this.lookTarget.isVisible = false;
-        // this.lookTarget.isPickable = false;
-        // this.lookTarget.position = Vector3.Zero();
-        // this.lookTarget.parent = this.CoT;
 
         // Physics shape for the character
         if (displayCapsule) {
@@ -67,36 +65,22 @@ export class ThirdPersonCharacterController {
             capsuleRadius: this.radius,
         }
 
-                //nose
-                this.nose = MeshBuilder.CreateBox("nose", {
-                    height: 0.4,
-                    width: 0.8,
-                    depth: 0.4,
-                }, this.scene)
-                this.nose.position = new Vector3(3.4, 1.8, 0)
-                this.nose.parent = this.displayCapsule
-                this.nose.isVisible = false;
+        //nose
+        this.nose = MeshBuilder.CreateBox("nose", {
+            height: 0.4,
+            width: 0.8,
+            depth: 0.4,
+        }, this.scene)
+        this.nose.position = new Vector3(3.4, 1.8, 0)
+        this.nose.parent = this.displayCapsule
+        this.nose.isVisible = false;
 
-                // this.nose.updateFacetData();
-                // const positions = this.nose.getFacetLocalPositions();
-                // const normals = this.nose.getFacetLocalNormals();
-            
-                // var lines = [];
-                // for (var i = 0; i < positions.length; i++) {
-                //     var line:Vector3[] = [ positions[i], positions[i].add(normals[i]) ];
-                //     lines.push(line);
-                // }
-                // var lineSystem = MeshBuilder.CreateLineSystem("ls", {lines: lines}, scene);
-                // lineSystem.color = Color3.Green();
-
-
-
-
-                
         this.CC = new PhysicsCharacterController(position, shapeOptions, this.scene);
         // Player/Character state
         this.state = new CharacterControllerState(this.CC, this.scene);
-        this.CCAM = new CharacterControllerAnimationManager(this.scene);
+        //this.CCAM = new CharacterControllerAnimationManager(this.scene);
+        this.CCAM = new CharacterControllerAnimationManager(animationContainer)
+        this.CCAEB = new CharacterControllerAnimationEventBinder(animationContainer, this.scene);
     }
 
     bindEvents() {
@@ -120,11 +104,7 @@ export class ThirdPersonCharacterController {
             if (!this.displayCapsule.rotationQuaternion) {
                 this.displayCapsule.rotationQuaternion = this.displayCapsule.rotation.toQuaternion();
             }
-            // const camera = this.scene.activeCamera as FollowCamera;
-            // if (!camera) {
-            //     return;
-            // }
-            // Convert the input direction from camera space to world space
+
             const cameraQuaternion = Quaternion.FromEulerAngles(0, 0, 0);
             const cameraMatrix = new Matrix();
             cameraQuaternion.toRotationMatrix(cameraMatrix);
@@ -160,7 +140,6 @@ export class ThirdPersonCharacterController {
         this.CCAM.updateAnimationFromVelocity(desiredLinearVelocity);
 
         this.CC.setVelocity(desiredLinearVelocity)
-
         this.CC.integrate(dt, support, this.state.characterGravity)
     }
 
@@ -229,22 +208,15 @@ export class ThirdPersonCharacterController {
                 break
         }
 
+        //#region animation and event data update
         const euler = this.displayCapsule.rotationQuaternion?.toEulerAngles();
         if (euler) {
-            // console.log(euler?._y*Math.PI);
-            // // console.log(Tools.ToDegrees(euler._y));
             const degrees = Tools.ToDegrees(euler._y);
-            const z = Math.sin(degrees);
-            const x = Math.cos(degrees)
-            // console.log(x,z)
-            
-            this.CCAM.setEmitterInputDirection(new Vector3(x,0,z))
-            this.CCAM.setEmitterAngle(Tools.ToDegrees(euler._y));
+            this.CCAEB.setEmitterAngle(degrees);
         }
-
         const normal = this.nose.getFacetNormal(4).normalize();
-        this.CCAM.setEmitterNormal(normal);
-        this.CCAM.setEmitterPosition(this.nose.getAbsolutePosition())
-        this.CCAM.updateAnimation(this.state.isThrowingFreesbe, this.state.isCrossPunching)
+        this.CCAM.updateAnimationFromKeyBoard(this.state.isThrowingFreesbe, this.state.isCrossPunching)
+        this.CCAEB.setEmitterNormal(normal);
+        this.CCAEB.setEmitterPosition(this.nose.getAbsolutePosition());
     }
 }

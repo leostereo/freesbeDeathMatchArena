@@ -53,10 +53,8 @@ class App {
     }));
     await webgpu.initAsync();
     this.engine = webgpu;
-    console.log(this.engine);
 
     this.scene = new Scene(this.engine);
-    console.log(' scene',this.scene)
     // Add physics. If not needed, you can annotate it to improve loading speed and environment performance.
     await this._setPhysics();
 
