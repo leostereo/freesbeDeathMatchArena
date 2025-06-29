@@ -30,13 +30,15 @@ export class CharacterControllerAnimationEventBinder {
     public setEmitterAngle(angle: number) {
         this.emitterAngle = angle;
     }
-
+    
     public setEmitterNormal(vector: Vector3) {
         this.emitterNormal = vector;
     }
 
-
+    
     private bindThrowFreesbeEvents() {
+
+        const throwFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.throw_freesbe);
 
         const particlesEffect = new AnimationEvent(
             80,
@@ -139,7 +141,7 @@ export class CharacterControllerAnimationEventBinder {
                 particleSystem.maxEmitPower = 8;
                 particleSystem.updateSpeed = 0.005;
 
-
+                
                 // Start the particle system
                 particleSystem.start();
                 setTimeout(() => {
@@ -150,14 +152,14 @@ export class CharacterControllerAnimationEventBinder {
             },
             true,
         );
-
+        
         const freesbeThrow = new AnimationEvent(
             85,
             () => {
                 const freesbe = MeshBuilder.CreateCylinder('freesbe', { diameter: 1, height: 0.1 })
                 freesbe.position = this.emitterPosition.clone();
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
-                freesbeAggregate.body.applyImpulse(this.emitterNormal.scale(500), freesbe.absolutePosition);
+                freesbeAggregate.body.applyImpulse(this.emitterNormal.scale(100), freesbe.absolutePosition);
 
                 setTimeout(() => {
                     freesbe.dispose()
@@ -167,10 +169,18 @@ export class CharacterControllerAnimationEventBinder {
             true,
         );
 
+        const releaseLatch = new AnimationEvent(
+            190,
+            () => {
+                throwFreesbeAnimation.latched = false;
+            },
+            true,
+        );
 
-        const throwFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.throw_freesbe);
+
         throwFreesbeAnimation.animation.targetedAnimations[0].animation.addEvent(particlesEffect);
         throwFreesbeAnimation.animation.targetedAnimations[0].animation.addEvent(freesbeThrow);
+        throwFreesbeAnimation.animation.targetedAnimations[0].animation.addEvent(releaseLatch);
 
 
 

@@ -79,9 +79,9 @@ export class CharacterControllerState {
             if (this.isRunning) {
                 speed *= 3.0
             }
-            if(this.isThrowingFreesbe || this.isCrossPunching){
-                this.inputDirection = new Vector3(0,0,0);
-            }
+            // if(this.isThrowingFreesbe || this.isCrossPunching){
+            //     this.inputDirection = new Vector3(0,0,0);
+            // }
             let desiredVelocity = this.inputDirection.scale(speed).applyRotationQuaternion(characterOrientation)
 
             let outputVelocity = this.characterController.calculateMovement(deltaTime, forwardWorld, supportInfo.averageSurfaceNormal, currentVelocity, supportInfo.averageSurfaceVelocity, desiredVelocity, upWorld)

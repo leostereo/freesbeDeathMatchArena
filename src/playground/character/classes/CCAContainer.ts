@@ -25,7 +25,7 @@ export type AnimationPlayControllOptions = {
 export type CharacterAnimationItem = {
     animation: AnimationGroup;
     name: AnimationEnums;
-    requieresLoop: boolean;
+    latched: boolean;
     currentlyPlay: boolean;
     control?: AnimationPlayControllOptions;
 }
@@ -48,7 +48,7 @@ export class CharacterAnimationContainer {
         if (idleAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: idleAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.idle
             }
@@ -59,7 +59,7 @@ export class CharacterAnimationContainer {
         if (walkAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: walkAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.walk
             }
@@ -70,7 +70,7 @@ export class CharacterAnimationContainer {
         if (runAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: runAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.run
             }
@@ -81,7 +81,7 @@ export class CharacterAnimationContainer {
         if (runFastAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: runFastAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.run_fast
             }
@@ -92,7 +92,7 @@ export class CharacterAnimationContainer {
         if (freesbeAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: freesbeAnimation,
-                requieresLoop: false,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.throw_freesbe,
                 control: {
@@ -110,7 +110,7 @@ export class CharacterAnimationContainer {
         if (fallingIdleAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingIdleAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.falling_idle
             }
@@ -121,7 +121,7 @@ export class CharacterAnimationContainer {
         if (fallingFlatAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingFlatAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.falling_flat
             }
@@ -131,7 +131,7 @@ export class CharacterAnimationContainer {
         if (fallingFlatImpactAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingFlatImpactAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.falling_impact,
                 control: {
@@ -149,7 +149,7 @@ export class CharacterAnimationContainer {
         if (crossPunchAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: crossPunchAnimation,
-                requieresLoop: true,
+                latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.cross_punch,
                 control: {
@@ -162,7 +162,7 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-
+console.log(this.characterAnimationVector)
 
         // this.JUMP = scene.getAnimationGroupByName('jump up');
         // this.CROSS_PUNCH = scene.getAnimationGroupByName('cross punch');
@@ -178,6 +178,10 @@ export class CharacterAnimationContainer {
     public getAnimationByName(name: AnimationEnums): CharacterAnimationItem {
         const animationItem = this.characterAnimationVector.find((animation) => animation.name === name) as CharacterAnimationItem
         return animationItem;
+    }
+
+    public isAnyAnimationLatched():boolean{
+        return this.characterAnimationVector.some((animation)=>animation.latched);
     }
 
 }

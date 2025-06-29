@@ -24,10 +24,9 @@ export class ThirdPersonCharacterController {
     protected isKeyDown: boolean = false;
     protected isBlockingKeyboard: boolean = false;
 
-    protected CAM: CharacterAnimationContainer;
+    protected CAC: CharacterAnimationContainer;
     protected CCAM: CharacterControllerAnimationManager;
     protected CCAEB: CharacterControllerAnimationEventBinder;
-    //protected CCAM: CharacterControllerAnimationManager;
 
     /**
      * Creates a Cot - center of transformation.
@@ -79,6 +78,7 @@ export class ThirdPersonCharacterController {
         // Player/Character state
         this.state = new CharacterControllerState(this.CC, this.scene);
         //this.CCAM = new CharacterControllerAnimationManager(this.scene);
+        this.CAC = animationContainer;
         this.CCAM = new CharacterControllerAnimationManager(animationContainer)
         this.CCAEB = new CharacterControllerAnimationEventBinder(animationContainer, this.scene);
     }
@@ -135,7 +135,13 @@ export class ThirdPersonCharacterController {
             return
         }
         Quaternion.FromEulerAnglesToRef(0, camera.rotation.y, 0, this.state.characterOrientation)
+
         let desiredLinearVelocity = this.state.getDesiredVelocity(dt, support, this.state.characterOrientation, this.CC.getVelocity())
+
+        // if (this.CAC.isAnyAnimationLatched()) {
+        //     desiredLinearVelocity._x = 0;
+        //     desiredLinearVelocity.z = 0;
+        // }
 
         this.CCAM.updateAnimationFromVelocity(desiredLinearVelocity);
 
@@ -168,8 +174,10 @@ export class ThirdPersonCharacterController {
     onKeyboard(kbInfo: KeyboardInfo) {
         // Input to direction
         // from keys down/up, update the Vector3 inputDirection to match the intended direction. Jump with space
+
         switch (kbInfo.type) {
             case KeyboardEventTypes.KEYDOWN:
+                // if (this.CAC.isAnyAnimationLatched()) return;
                 this.isKeyDown = true
                 if (kbInfo.event.key == 'w' || kbInfo.event.key == 'ArrowUp') {
                     this.state.inputDirection.x = -1
@@ -208,6 +216,14 @@ export class ThirdPersonCharacterController {
                 break
         }
 
+        this.CCAM.updateAnimationFromKeyBoard(this.state.isThrowingFreesbe, this.state.isCrossPunching)
+
+
+        // if (this.CAC.isAnyAnimationLatched()) {
+        //     this.state.inputDirection._x = 0;
+        //     this.state.inputDirection._z = 0;
+        // }
+
         //#region animation and event data update
         const euler = this.displayCapsule.rotationQuaternion?.toEulerAngles();
         if (euler) {
@@ -215,7 +231,6 @@ export class ThirdPersonCharacterController {
             this.CCAEB.setEmitterAngle(degrees);
         }
         const normal = this.nose.getFacetNormal(4).normalize();
-        this.CCAM.updateAnimationFromKeyBoard(this.state.isThrowingFreesbe, this.state.isCrossPunching)
         this.CCAEB.setEmitterNormal(normal);
         this.CCAEB.setEmitterPosition(this.nose.getAbsolutePosition());
     }

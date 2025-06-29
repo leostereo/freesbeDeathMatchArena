@@ -4,7 +4,6 @@ import { AnimationEnums, CharacterAnimationContainer, CharacterAnimationItem } f
 export class CharacterControllerAnimationManager {
 
     private animationContainer: CharacterAnimationContainer;
-    private isKeyBoardBlocked: boolean;
     protected currentAnimation: CharacterAnimationItem;
     protected prevAnimation: CharacterAnimationItem;
 
@@ -12,18 +11,15 @@ export class CharacterControllerAnimationManager {
 
         this.animationContainer = animationContainer;
         this.currentAnimation = this.animationContainer.getAnimationByName(AnimationEnums.idle);
-        this.isKeyBoardBlocked = false;
-        //this.playAnimation(this.currentAnimation);
 
     }
 
     public updateAnimationFromKeyBoard(throwFreesbe: boolean, crossPunch: boolean): void {
 
-        //if (this.isKeyBoardBlocked) return;
-
-        //throw freesbe
         if (throwFreesbe && this.currentAnimation.name !== AnimationEnums.throw_freesbe) {
-            this.playControlledAnimation(this.animationContainer.getAnimationByName(AnimationEnums.throw_freesbe))
+            const animation = this.animationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
+            animation.latched = true;
+            this.playControlledAnimation(animation);
             return;
         }
 
@@ -32,10 +28,10 @@ export class CharacterControllerAnimationManager {
             return;
         }
 
-        if (!throwFreesbe && this.currentAnimation.name === AnimationEnums.throw_freesbe) {
-            this.playAnimationLoop(this.animationContainer.getAnimationByName(AnimationEnums.idle))
-            return
-        }
+        // if (!throwFreesbe && this.currentAnimation.name === AnimationEnums.throw_freesbe) {
+        //     this.playAnimationLoop(this.animationContainer.getAnimationByName(AnimationEnums.idle))
+        //     return
+        // }
 
         if (!crossPunch && this.currentAnimation.name === AnimationEnums.cross_punch) {
             this.playAnimationLoop(this.animationContainer.getAnimationByName(AnimationEnums.idle))
@@ -45,9 +41,7 @@ export class CharacterControllerAnimationManager {
 
     public updateAnimationFromVelocity(velocityVector: Vector3): void {
 
-        if (this.currentAnimation.name === AnimationEnums.throw_freesbe
-            || this.currentAnimation.name === AnimationEnums.cross_punch) return;
-
+        if (this.animationContainer.isAnyAnimationLatched()) return;
 
         if (velocityVector._y > -15 && this.currentAnimation.name === AnimationEnums.falling_flat) {
             this.playControlledAnimation(this.animationContainer.getAnimationByName(AnimationEnums.falling_impact));
