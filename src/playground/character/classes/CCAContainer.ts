@@ -162,8 +162,24 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
+        const jumpUpAnimation = this.scene.getAnimationGroupByName('jump up')
+        if (jumpUpAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: jumpUpAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.jump,
+                control: {
+                    from: 1,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.2,
+                    to: 52
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
 
-        // this.JUMP = scene.getAnimationGroupByName('jump up');
         // this.CROSS_PUNCH = scene.getAnimationGroupByName('cross punch');
 
 

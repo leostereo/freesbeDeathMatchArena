@@ -17,6 +17,7 @@ export class CharacterControllerAnimationEventBinder {
         this.animtionContainer = animationContainer;
         this.scene = scene;
         this.bindThrowFreesbeEvents();
+        this.bindJumpUpEvents();
     }
 
     public setEmitterPosition(position: Vector3) {
@@ -30,12 +31,12 @@ export class CharacterControllerAnimationEventBinder {
     public setEmitterAngle(angle: number) {
         this.emitterAngle = angle;
     }
-    
+
     public setEmitterNormal(vector: Vector3) {
         this.emitterNormal = vector;
     }
 
-    
+
     private bindThrowFreesbeEvents() {
 
         const throwFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.throw_freesbe);
@@ -45,7 +46,7 @@ export class CharacterControllerAnimationEventBinder {
             () => {
                 //particleSystem.particleTexture = new Texture("https://assets.babylonjs.com/textures/flare.png");
 
-                
+
                 // Create a particle system
                 var particleSystem = new ParticleSystem("particles", 2000, this.scene);
 
@@ -103,8 +104,8 @@ export class CharacterControllerAnimationEventBinder {
                 var cone = MeshBuilder.CreateCylinder("cone", { diameterBottom: 0, diameterTop: 2 * radius, height: height }, this.scene);
                 cone.isVisible = false;
                 cone.position = this.emitterPosition.clone();
-                const finalConeAngle = Math.PI/2 + this.emitterAngle * Math.PI/180;
-                cone.rotation = new Vector3(Math.PI/2,finalConeAngle,0)
+                const finalConeAngle = Math.PI / 2 + this.emitterAngle * Math.PI / 180;
+                cone.rotation = new Vector3(Math.PI / 2, finalConeAngle, 0)
 
                 // Create a particle system
                 var particleSystem = new ParticleSystem("particles", 2000, this.scene);
@@ -141,18 +142,18 @@ export class CharacterControllerAnimationEventBinder {
                 particleSystem.maxEmitPower = 8;
                 particleSystem.updateSpeed = 0.005;
 
-                
+
                 // Start the particle system
                 particleSystem.start();
                 setTimeout(() => {
                     //particleSystem.stop();
                     cone.dispose()
-                },1000)
+                }, 1000)
                 // Start the particle system
             },
             true,
         );
-        
+
         const freesbeThrow = new AnimationEvent(
             85,
             () => {
@@ -184,6 +185,20 @@ export class CharacterControllerAnimationEventBinder {
 
 
 
+    }
+
+    private bindJumpUpEvents() {
+        const jumpUpAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.jump);
+
+        const releaseLatch = new AnimationEvent(
+            52,
+            () => {
+                jumpUpAnimation.latched = false;
+            },
+            true,
+        );
+
+        jumpUpAnimation.animation.targetedAnimations[0].animation.addEvent(releaseLatch);
     }
 
 }

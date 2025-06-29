@@ -95,6 +95,11 @@ export class ThirdPersonCharacterController {
         })
     }
 
+    async delayJumpAction(){
+        setTimeout(()=>this.state.wantJump = true,500)
+        setTimeout(()=>this.state.wantJump = false,600)
+    }
+
     onBeforeRender() {
         // Display tick update: compute new camera position/target, update the capsule for the character display
         this.CoT.position.copyFrom(this.CC.getPosition());
@@ -182,7 +187,10 @@ export class ThirdPersonCharacterController {
                 } else if (kbInfo.event.key == 'd' || kbInfo.event.key == 'ArrowRight') {
                     this.state.inputDirection.z = 1
                 } else if (kbInfo.event.key == ' ') {
-                    this.state.wantJump = true
+                    // this.state.wantJump = true
+                    this.CCAM.updateAnimationFromKeyBoard(false,false,true)
+                    this.delayJumpAction();
+
                 } else if (kbInfo.event.key == 'h') {
                     this.state.isThrowingFreesbe = true;
                 } if (kbInfo.event.shiftKey) {
@@ -210,7 +218,8 @@ export class ThirdPersonCharacterController {
                 break
         }
 
-        this.CCAM.updateAnimationFromKeyBoard(this.state.isThrowingFreesbe, this.state.isCrossPunching)
+        this.CCAM.updateAnimationFromKeyBoard(this.state.isThrowingFreesbe,
+             this.state.isCrossPunching,this.state.wantJump)
 
 
         // if (this.CAC.isAnyAnimationLatched()) {

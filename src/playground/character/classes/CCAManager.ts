@@ -14,7 +14,14 @@ export class CharacterControllerAnimationManager {
 
     }
 
-    public updateAnimationFromKeyBoard(throwFreesbe: boolean, crossPunch: boolean): void {
+    public updateAnimationFromKeyBoard(throwFreesbe: boolean, crossPunch: boolean,jump:boolean): void {
+
+        if(jump && this.currentAnimation.name !== AnimationEnums.jump){
+            const animation = this.animationContainer.getAnimationByName(AnimationEnums.jump);
+            animation.latched = true;
+            this.playControlledAnimation(animation);
+            return;
+        }
 
         if (throwFreesbe && this.currentAnimation.name !== AnimationEnums.throw_freesbe) {
             const animation = this.animationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
@@ -48,10 +55,11 @@ export class CharacterControllerAnimationManager {
             return;
         }
 
-        if (velocityVector._y > 2 && this.currentAnimation.name !== AnimationEnums.falling_idle) {
-            this.playAnimationLoop(this.animationContainer.getAnimationByName(AnimationEnums.falling_idle));
-            return;
-        }
+        //replace for jump animation
+        // if (velocityVector._y > 2 && this.currentAnimation.name !== AnimationEnums.falling_idle) {
+        //     this.playAnimationLoop(this.animationContainer.getAnimationByName(AnimationEnums.falling_idle));
+        //     return;
+        // }
 
         if (velocityVector._y < -35) {
             if (this.currentAnimation.name === AnimationEnums.falling_flat) return;

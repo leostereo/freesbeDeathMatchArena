@@ -12,7 +12,7 @@ export class CharacterControllerState {
     public inAirSpeed = 8.0;
     public onGroundSpeed = 8.0;
     private onLatchSpeed = 0.3;
-    public jumpHeight = 2.5;
+    public jumpHeight = 3;
     public wantJump = false;
     public isThrowingFreesbe = false;
     public isCrossPunching = false;
