@@ -136,15 +136,9 @@ export class ThirdPersonCharacterController {
         }
         Quaternion.FromEulerAnglesToRef(0, camera.rotation.y, 0, this.state.characterOrientation)
 
-        let desiredLinearVelocity = this.state.getDesiredVelocity(dt, support, this.state.characterOrientation, this.CC.getVelocity())
-
-        // if (this.CAC.isAnyAnimationLatched()) {
-        //     desiredLinearVelocity._x = 0;
-        //     desiredLinearVelocity.z = 0;
-        // }
+        let desiredLinearVelocity = this.state.getDesiredVelocity(dt, support, this.state.characterOrientation, this.CC.getVelocity(),this.CAC.isAnyAnimationLatched())
 
         this.CCAM.updateAnimationFromVelocity(desiredLinearVelocity);
-
         this.CC.setVelocity(desiredLinearVelocity)
         this.CC.integrate(dt, support, this.state.characterGravity)
     }
@@ -177,7 +171,7 @@ export class ThirdPersonCharacterController {
 
         switch (kbInfo.type) {
             case KeyboardEventTypes.KEYDOWN:
-                // if (this.CAC.isAnyAnimationLatched()) return;
+                if (this.CAC.isAnyAnimationLatched()) return;
                 this.isKeyDown = true
                 if (kbInfo.event.key == 'w' || kbInfo.event.key == 'ArrowUp') {
                     this.state.inputDirection.x = -1

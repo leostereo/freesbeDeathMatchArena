@@ -10,7 +10,8 @@ enum CharacterState {
 export class CharacterControllerState {
     public state: CharacterState = CharacterState.ON_GROUND;
     public inAirSpeed = 8.0;
-    public onGroundSpeed = 10.0;
+    public onGroundSpeed = 8.0;
+    private onLatchSpeed = 0.3;
     public jumpHeight = 2.5;
     public wantJump = false;
     public isThrowingFreesbe = false;
@@ -51,7 +52,7 @@ export class CharacterControllerState {
         return CharacterState.UNKNOWN
     }
 
-    getDesiredVelocity(deltaTime: number, supportInfo: CharacterSurfaceInfo, characterOrientation: Quaternion, currentVelocity: Vector3): Vector3 {
+    getDesiredVelocity(deltaTime: number, supportInfo: CharacterSurfaceInfo, characterOrientation: Quaternion, currentVelocity: Vector3,isLatched:boolean): Vector3 {
         // From aiming direction and state, compute a desired velocity
         // That velocity depends on current state (in air, on ground, jumping, ...) and surface properties
         let nextState = this.getNextState(supportInfo)
@@ -79,9 +80,11 @@ export class CharacterControllerState {
             if (this.isRunning) {
                 speed *= 3.0
             }
-            // if(this.isThrowingFreesbe || this.isCrossPunching){
-            //     this.inputDirection = new Vector3(0,0,0);
-            // }
+
+            if(isLatched){
+                speed = this.onLatchSpeed;
+            }
+
             let desiredVelocity = this.inputDirection.scale(speed).applyRotationQuaternion(characterOrientation)
 
             let outputVelocity = this.characterController.calculateMovement(deltaTime, forwardWorld, supportInfo.averageSurfaceNormal, currentVelocity, supportInfo.averageSurfaceVelocity, desiredVelocity, upWorld)

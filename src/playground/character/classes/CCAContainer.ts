@@ -162,7 +162,6 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-console.log(this.characterAnimationVector)
 
         // this.JUMP = scene.getAnimationGroupByName('jump up');
         // this.CROSS_PUNCH = scene.getAnimationGroupByName('cross punch');
