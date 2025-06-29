@@ -9,6 +9,7 @@ import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
 import { Ground } from "./ground";
 import { Character } from "./character/Character"
 import { Camera } from "@babylonjs/core";
+import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
 
 export default class MainScene {
   private camera: ArcRotateCamera;
@@ -47,5 +48,6 @@ export default class MainScene {
     // Load your files in order
     new Ground(this.scene);
     new Character(this.scene);
+    new EnemySpawnClass(this.scene);
   }
 }

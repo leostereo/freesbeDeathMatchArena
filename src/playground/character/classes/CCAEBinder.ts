@@ -39,6 +39,59 @@ export class CharacterControllerAnimationEventBinder {
 
     private bindThrowFreesbeEvents() {
 
+        var bodyCollideCB = (collision) => {
+            // console.log('Body collideCB', collision.collider.transformNode.name, collision.point, collision.distance, collision.impulse, collision.normal);
+            // const ball = MeshBuilder.CreateBox('', { size: 1 });
+            // ball.position = collision.point;
+
+            var particleSystem = new ParticleSystem("particles", 2000, this.scene);
+
+            //Texture of each particle
+            particleSystem.particleTexture = new Texture("https://assets.babylonjs.com/textures/flare.png");
+
+            // Where the particles come from
+            particleSystem.emitter = collision.point; // the starting location
+
+
+            // Colors of all particles
+            particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0);
+            particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0);
+            particleSystem.colorDead = new Color4(0, 0, 0.2, 0.0);
+
+            // Size of each particle (random between...
+            particleSystem.minSize = 0.1;
+            particleSystem.maxSize = 0.5;
+
+            // Life time of each particle (random between...
+            particleSystem.minLifeTime = 0.1;
+            particleSystem.maxLifeTime = 0.5;
+
+            // Emission rate
+            particleSystem.emitRate = 500;
+
+
+            /******* Emission Space ********/
+            //particleSystem.createPointEmitter(collision.normal.scaleInPlace(-1),collision.normal);
+            particleSystem.createSphereEmitter(1);
+
+            // Speed
+            particleSystem.minEmitPower = 1;
+            particleSystem.maxEmitPower = 6;
+            particleSystem.updateSpeed = 0.005;
+
+            // Start the particle system
+            particleSystem.start();
+
+            setTimeout(() => {
+                particleSystem.stop();
+            }, 500);
+
+            setTimeout(() => {
+                particleSystem.dispose();
+            }, 1500);
+
+        }
+
         const throwFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.throw_freesbe);
 
         const particlesEffect = new AnimationEvent(
@@ -55,7 +108,7 @@ export class CharacterControllerAnimationEventBinder {
 
                 // Where the particles come from
                 particleSystem.emitter = this.emitterPosition; // the starting location
-                particleSystem.direction1 = this.emitterNormal.scaleInPlace(10);
+                particleSystem.direction1 = this.emitterNormal.scaleInPlace(3);
                 //cone.rotation = new Vector3(Math.PI / 2, this.emitterAngle, 0)
 
                 // Colors of all particles
@@ -89,6 +142,9 @@ export class CharacterControllerAnimationEventBinder {
                 setTimeout(() => {
                     particleSystem.stop();
                 }, 500)
+                setTimeout(() => {
+                    particleSystem.dispose();
+                }, 1500)
             },
             true,
         );
@@ -160,11 +216,15 @@ export class CharacterControllerAnimationEventBinder {
                 const freesbe = MeshBuilder.CreateCylinder('freesbe', { diameter: 1, height: 0.1 })
                 freesbe.position = this.emitterPosition.clone();
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
-                freesbeAggregate.body.applyImpulse(this.emitterNormal.scale(100), freesbe.absolutePosition);
+                freesbeAggregate.body.applyImpulse(this.emitterNormal.scale(300), freesbe.absolutePosition);
+                freesbeAggregate.body.setCollisionCallbackEnabled(true)
+                freesbeAggregate.body.getCollisionObservable().add(bodyCollideCB);
+
+
 
                 setTimeout(() => {
                     freesbe.dispose()
-                }, 1500)
+                }, 4000)
                 // Start the particle system
             },
             true,
@@ -178,11 +238,9 @@ export class CharacterControllerAnimationEventBinder {
             true,
         );
 
-
         throwFreesbeAnimation.animation.targetedAnimations[0].animation.addEvent(particlesEffect);
         throwFreesbeAnimation.animation.targetedAnimations[0].animation.addEvent(freesbeThrow);
         throwFreesbeAnimation.animation.targetedAnimations[0].animation.addEvent(releaseLatch);
-
 
 
     }
