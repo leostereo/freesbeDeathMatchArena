@@ -11,7 +11,8 @@ export class EnemySpawnClass {
         
         const dumyTargetPositions : Vector3[] =[
             
-            new Vector3(-34,11,-17),
+            // new Vector3(1,50,4),
+            new Vector3(-34,1,-17),
             new Vector3(-23,10,2),
             new Vector3(8,10,26),
             new Vector3(13,10,-1),

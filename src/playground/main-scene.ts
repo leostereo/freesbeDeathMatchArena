@@ -10,6 +10,8 @@ import { Ground } from "./ground";
 import { Character } from "./character/Character"
 import { Camera } from "@babylonjs/core";
 import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
+import { PhysicCharacter } from "@/physics/character";
+import { ForcedPhysicCharacter } from "@/physics/ForcedCharacter";
 
 export default class MainScene {
   private camera: ArcRotateCamera;
@@ -46,8 +48,10 @@ export default class MainScene {
 
   async loadComponents(): Promise<void> {
     // Load your files in order
+    //new PhysicCharacter(this.scene);      //experimental
     new Ground(this.scene);
-    new Character(this.scene);
+    //new Character(this.scene);            //physic controller based
+    new ForcedPhysicCharacter(this.scene);  // force propelhed
     new EnemySpawnClass(this.scene);
   }
 }

@@ -95,9 +95,9 @@ export class ThirdPersonCharacterController {
         })
     }
 
-    async delayJumpAction(){
-        setTimeout(()=>this.state.wantJump = true,500)
-        setTimeout(()=>this.state.wantJump = false,600)
+    async delayJumpAction() {
+        setTimeout(() => this.state.wantJump = true, 500)
+        setTimeout(() => this.state.wantJump = false, 600)
     }
 
     onBeforeRender() {
@@ -134,15 +134,15 @@ export class ThirdPersonCharacterController {
         }
         let down = new Vector3(0, -1, 0)
         let support = this.CC.checkSupport(dt, down)
-
+        
         const camera = this.scene.activeCamera as FollowCamera
         if (!camera) {
             return
         }
         Quaternion.FromEulerAnglesToRef(0, camera.rotation.y, 0, this.state.characterOrientation)
 
-        let desiredLinearVelocity = this.state.getDesiredVelocity(dt, support, this.state.characterOrientation, this.CC.getVelocity(),this.CAC.isAnyAnimationLatched())
-
+        let desiredLinearVelocity = this.state.getDesiredVelocity(dt, support, this.state.characterOrientation, this.CC.getVelocity(), this.CAC.isAnyAnimationLatched())
+        
         this.CCAM.updateAnimationFromVelocity(desiredLinearVelocity);
         this.CC.setVelocity(desiredLinearVelocity)
         this.CC.integrate(dt, support, this.state.characterGravity)
@@ -188,7 +188,7 @@ export class ThirdPersonCharacterController {
                     this.state.inputDirection.z = 1
                 } else if (kbInfo.event.key == ' ') {
                     // this.state.wantJump = true
-                    this.CCAM.updateAnimationFromKeyBoard(false,false,true)
+                    this.CCAM.updateAnimationFromKeyBoard(false, false, true)
                     this.delayJumpAction();
 
                 } else if (kbInfo.event.key == 'h') {
@@ -219,7 +219,7 @@ export class ThirdPersonCharacterController {
         }
 
         this.CCAM.updateAnimationFromKeyBoard(this.state.isThrowingFreesbe,
-             this.state.isCrossPunching,this.state.wantJump)
+            this.state.isCrossPunching, this.state.wantJump)
 
 
         // if (this.CAC.isAnyAnimationLatched()) {

@@ -5,6 +5,8 @@ enum CharacterState {
     IN_AIR = 'IN_AIR',
     ON_GROUND = 'ON_GROUND',
     START_JUMP = 'START_JUMP',
+    ELEVATOR_UP = 'ELEVATOR_UP',
+    ELEVATOR_DOWN = 'ELEVATOR_DOWN'
 }
 
 export class CharacterControllerState {
@@ -32,10 +34,25 @@ export class CharacterControllerState {
     getNextState(supportInfo: CharacterSurfaceInfo): CharacterState {
         // State handling
         // depending on character state and support, set the new state
+
+        if (supportInfo.supportedState === CharacterSupportedState.UNSUPPORTED) {
+            // console.log(supportInfo)
+            console.table(supportInfo)
+            return CharacterState.IN_AIR
+        }
+
+
+        if (supportInfo.averageSurfaceVelocity._y > 0 
+                && supportInfo.supportedState  == CharacterSupportedState.SUPPORTED 
+                && supportInfo.averageSurfaceNormal._y == 1) {
+            return CharacterState.ELEVATOR_UP
+        }
+
         if (this.state == CharacterState.IN_AIR) {
             if (supportInfo.supportedState == CharacterSupportedState.SUPPORTED) {
                 return CharacterState.ON_GROUND
             }
+
             return CharacterState.IN_AIR
         } else if (this.state == CharacterState.ON_GROUND) {
             if (supportInfo.supportedState != CharacterSupportedState.SUPPORTED) {
@@ -49,10 +66,11 @@ export class CharacterControllerState {
         } else if (this.state == CharacterState.START_JUMP) {
             return CharacterState.IN_AIR
         }
+
         return CharacterState.UNKNOWN
     }
 
-    getDesiredVelocity(deltaTime: number, supportInfo: CharacterSurfaceInfo, characterOrientation: Quaternion, currentVelocity: Vector3,isLatched:boolean): Vector3 {
+    getDesiredVelocity(deltaTime: number, supportInfo: CharacterSurfaceInfo, characterOrientation: Quaternion, currentVelocity: Vector3, isLatched: boolean): Vector3 {
         // From aiming direction and state, compute a desired velocity
         // That velocity depends on current state (in air, on ground, jumping, ...) and surface properties
         let nextState = this.getNextState(supportInfo)
@@ -60,9 +78,12 @@ export class CharacterControllerState {
             this.state = nextState
         }
 
+        //console.log(this.state)
+
         let upWorld = this.characterGravity.normalizeToNew()
         upWorld.scaleInPlace(-1.0)
         let forwardWorld = this.forwardLocalSpace.applyRotationQuaternion(characterOrientation)
+
         if (this.state == CharacterState.IN_AIR) {
             let desiredVelocity = this.inputDirection.scale(this.inAirSpeed).applyRotationQuaternion(characterOrientation)
             let outputVelocity = this.characterController.calculateMovement(deltaTime, forwardWorld, upWorld, currentVelocity, Vector3.ZeroReadOnly, desiredVelocity, upWorld)
@@ -81,7 +102,7 @@ export class CharacterControllerState {
                 speed *= 3.0
             }
 
-            if(isLatched){
+            if (isLatched) {
                 speed = this.onLatchSpeed;
             }
 
@@ -109,6 +130,26 @@ export class CharacterControllerState {
             let u = Math.sqrt(2 * this.characterGravity.length() * this.jumpHeight)
             let curRelVel = currentVelocity.dot(upWorld)
             return currentVelocity.add(upWorld.scale(u - curRelVel))
+        } else if (this.state == CharacterState.ELEVATOR_UP) {
+
+            let speed = this.onGroundSpeed
+            let desiredVelocity = this.inputDirection.scale(speed).applyRotationQuaternion(characterOrientation)
+            let outputVelocity = this.characterController.calculateMovement(deltaTime, forwardWorld, supportInfo.averageSurfaceNormal, currentVelocity, supportInfo.averageSurfaceVelocity.scale(2), desiredVelocity, upWorld)
+            outputVelocity.addInPlace(supportInfo.averageSurfaceVelocity)
+            return outputVelocity
+        } else if (this.state == CharacterState.ELEVATOR_DOWN) {
+
+            let speed = this.onGroundSpeed
+            let desiredVelocity = this.inputDirection.scale(speed).applyRotationQuaternion(characterOrientation)
+            let outputVelocity = this.characterController.calculateMovement(deltaTime, forwardWorld, supportInfo.averageSurfaceNormal, currentVelocity, supportInfo.averageSurfaceVelocity.scale(2), desiredVelocity, upWorld)
+
+            outputVelocity.addInPlace(upWorld.scale(-outputVelocity.dot(upWorld)))
+            outputVelocity.addInPlace(upWorld.scale(currentVelocity.dot(upWorld)))
+            // Add gravity
+            outputVelocity.addInPlace(this.characterGravity.scale(deltaTime))
+
+            outputVelocity.subtractInPlace(supportInfo.averageSurfaceVelocity)
+            return outputVelocity
         }
         return Vector3.Zero()
     }
