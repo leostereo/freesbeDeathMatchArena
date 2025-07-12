@@ -24,16 +24,16 @@ export class AnimationManager {
             return;
         }
     }
+    
     public updateAnimationFromVelocity(velocityVector: Vector3, inputDirection: Vector3,
         currentAnimation: CharacterAnimationItem | undefined, state: CharacterState): void {
 
         if (currentAnimation?.latched) return;
-
-
+        
         //Ground animations
         if (state == CharacterState.ON_GROUND) {
 
-            if ((Math.abs(velocityVector._x) >= 0 || Math.abs(velocityVector._z) >= 0) && velocityVector._y === 0) {
+            if ((Math.abs(velocityVector._x) <=1 && Math.abs(velocityVector._z) <= 1)) {
 
                 if (currentAnimation?.name === AnimationEnums.idle || currentAnimation?.name === AnimationEnums.falling_impact) return;
 
@@ -106,15 +106,11 @@ export class AnimationManager {
 
             return
         }
-
-
-
-
-
     }
 
+    
     private playAnimationLoop(animation: CharacterAnimationItem): void {
-        this.AnimationContainer.getCurrentPlayingAnimation()?.animation.stop();
+        this.AnimationContainer.getCurrentPlayingAnimation()?.animation.pause();
         animation.animation.play(true);
     }
 

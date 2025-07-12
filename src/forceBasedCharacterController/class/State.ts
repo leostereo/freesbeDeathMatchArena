@@ -93,7 +93,7 @@ export class State {
         }
 
         if(state === CharacterState.IN_AIR){
-            forceToApply._y = -500;
+            forceToApply._y = -1000;
         }
 
         return forceToApply;
