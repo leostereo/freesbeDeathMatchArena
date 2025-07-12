@@ -10,8 +10,8 @@ import { Ground } from "./ground";
 import { Character } from "./character/Character"
 import { Camera } from "@babylonjs/core";
 import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
-import { PhysicCharacter } from "@/physics/character";
-import { ForcedPhysicCharacter } from "@/physics/ForcedCharacter";
+import { PhysicCharacter } from "@/experimental/Character";
+import { ForceBasedCharacter } from "@/forceBasedCharacterController/ForceBasedCharacter";
 
 export default class MainScene {
   private camera: ArcRotateCamera;
@@ -25,7 +25,7 @@ export default class MainScene {
 
   _setCamera(scene: Scene): void {
     // Creates, angles, distances and targets the camera
-    var camera = new ArcRotateCamera("camera", 0, Math.PI/3, 40, new Vector3(0, 0, 0), scene);
+    var camera = new ArcRotateCamera("camera", 0, Math.PI / 3, 40, new Vector3(0, 0, 0), scene);
 
     // This positions the camera
     //camera.setPosition(new Vector3(0, 0, -10));
@@ -51,7 +51,7 @@ export default class MainScene {
     //new PhysicCharacter(this.scene);      //experimental
     new Ground(this.scene);
     //new Character(this.scene);            //physic controller based
-    new ForcedPhysicCharacter(this.scene);  // force propelhed
-    new EnemySpawnClass(this.scene);
+    new ForceBasedCharacter(this.scene);  // force propelhed
+    //new EnemySpawnClass(this.scene);
   }
 }

@@ -45,7 +45,7 @@ export class Ground {
 
   _createElevator(): void {
     const platform = MeshBuilder.CreateBox('plat', { width: 26.2, height: 0.2, depth: 26.2 })
-    platform.position = new Vector3(1, 10, 4)
+    platform.position = new Vector3(10, 10, 40)
     const platformAg = new PhysicsAggregate(platform, PhysicsShapeType.BOX, { mass: 100, restitution:0 });
 
     platformAg.body.setMotionType(PhysicsMotionType.ANIMATED);
@@ -54,7 +54,7 @@ export class Ground {
     var t = 0;
 
     this.scene.onBeforeRenderObservable.add(() => {
-     platform.position.y = 4 + Math.sin(t) * 4;
+     platform.position.y = 14 + Math.sin(t) * 14;
       t += 0.02;
     });
 
