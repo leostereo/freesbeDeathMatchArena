@@ -12,7 +12,7 @@ export class CharacterControll {
     private isBlockingKeyboard: false;
     public displayMesh: Mesh;
     private displayMeshAggregate: PhysicsAggregate;
-    private onMobileGround:boolean = false;
+    private onMobileGround: boolean = false;
     // animationhandler
     // eventbinder.
     private inputDirection: Vector3 = Vector3.Zero();
@@ -52,20 +52,20 @@ export class CharacterControll {
 
         const physicsEngine = this.scene.getPhysicsEngine();
         const currentPlugin = physicsEngine?.getPhysicsPlugin() as HavokPlugin;
-        currentPlugin.onTriggerCollisionObservable.add((ev)=>{
+        currentPlugin.onTriggerCollisionObservable.add((ev) => {
 
-            if(ev.type === PhysicsEventType.TRIGGER_ENTERED){
-                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay'){
+            if (ev.type === PhysicsEventType.TRIGGER_ENTERED) {
+                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay') {
                     this.onMobileGround = true;
                 }
             }
-            if(ev.type === PhysicsEventType.TRIGGER_EXITED){
-                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay'){
+            if (ev.type === PhysicsEventType.TRIGGER_EXITED) {
+                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay') {
                     this.onMobileGround = false;
                 }
             }
         })
-       
+
     }
 
     bindEvents() {
@@ -109,8 +109,8 @@ export class CharacterControll {
         const currentVelocity = this.displayMeshAggregate.body.getLinearVelocity();
         this.AnimationManager.updateAnimationFromVelocity(currentVelocity, this.inputDirection,
             this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
-        
-        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection,this.onMobileGround);
+
+        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection, this.onMobileGround);
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
 
         if (this.State.wantJump) {
@@ -124,6 +124,11 @@ export class CharacterControll {
     }
 
     onKeyboard(kbInfo: KeyboardInfo) {
+        
+        if (this.AnimationContainer.isAnyAnimationLatched()) {
+            return;
+        }
+        
         const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;
         switch (kbInfo.event.key) {
             case 'ArrowUp':
@@ -138,6 +143,9 @@ export class CharacterControll {
             case 'ArrowRight':
                 this.inputDirection.z = muliplier;
                 break;
+            case 'j':
+                this.State.wantsThrowFreesbe = Boolean(muliplier);
+                break;
             case 'Shift':
                 this.State.wantRun = Boolean(muliplier);
                 break;
@@ -147,12 +155,11 @@ export class CharacterControll {
                 break;
         }
 
-        const currentVelocity = this.displayMeshAggregate.body.getLinearVelocity();
 
         this.AnimationManager.updateAnimationFromKeyBoard(this.State.wantsThrowFreesbe,
             this.State.wantsCrossPunch, this.State.wantJump,
-             this.AnimationContainer.getCurrentPlayingAnimation(),
-            currentVelocity)
+            this.AnimationContainer.getCurrentPlayingAnimation(),
+        )
 
     }
 }

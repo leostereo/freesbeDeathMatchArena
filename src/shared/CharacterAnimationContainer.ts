@@ -12,6 +12,7 @@ export enum AnimationEnums {
     falling_impact = "IS_FALLING_FLAT_IMPACT",
     falling_idle = "IS_FALLING_IDLE",
     cross_punch = "CROSS_PUNCH",
+    landing_from_jump = "LANDING_FROM_JUMP"
 }
 
 
@@ -194,6 +195,24 @@ export class CharacterAnimationContainer {
                     mustLoop: false,
                     speedRatio: 1.2,
                     to: 62
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const landingFromJumpAnimation = this.scene.getAnimationGroupByName('landing')
+        if (landingFromJumpAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: landingFromJumpAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.landing_from_jump,
+                control: {
+                    from: 25,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.2,
+                    to: 120
                 }
             }
             this.characterAnimationVector.push(animationItem);

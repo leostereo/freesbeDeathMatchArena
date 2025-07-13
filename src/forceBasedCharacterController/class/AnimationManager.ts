@@ -23,19 +23,30 @@ export class AnimationManager {
             this.playControlledAnimation(animation);
             return;
         }
+
+        if (throwFreesbe && currentAnimation?.name !== AnimationEnums.throw_freesbe) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
+            animation.latched = true;
+            this.playControlledAnimation(animation);
+            return;
+        }
+        if(crossPunch){
+            //
+        }
     }
     
     public updateAnimationFromVelocity(velocityVector: Vector3, inputDirection: Vector3,
         currentAnimation: CharacterAnimationItem | undefined, state: CharacterState): void {
 
         if (currentAnimation?.latched) return;
-        
         //Ground animations
         if (state == CharacterState.ON_GROUND) {
 
             if ((Math.abs(velocityVector._x) <=1 && Math.abs(velocityVector._z) <= 1)) {
 
-                if (currentAnimation?.name === AnimationEnums.idle || currentAnimation?.name === AnimationEnums.falling_impact) return;
+                if (currentAnimation?.name === AnimationEnums.idle 
+                    || currentAnimation?.name === AnimationEnums.falling_impact
+                    || currentAnimation?.name === AnimationEnums.landing_from_jump) return;
 
                 this.playAnimationLoop(
                     this.AnimationContainer.getAnimationByName(AnimationEnums.idle)
@@ -71,29 +82,23 @@ export class AnimationManager {
                 return
             }
 
-            // if ((Math.abs(velocityVector._x) > 2 || Math.abs(velocityVector._z) > 2)) {
-            //     if (currentAnimation?.name === AnimationEnums.walk) {
-            //         return;
-            //     }
-            //     this.playAnimationLoop(
-            //         this.AnimationContainer.getAnimationByName(AnimationEnums.walk)
-            //     )
-            //     return
-            // }
-
-
-
             return
         }
 
         if (state = CharacterState.IN_AIR) {
 
+            //crash on the floor.
             if (velocityVector._y > -15 && currentAnimation?.name === AnimationEnums.falling_flat) {
                 this.playControlledAnimation(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_impact));
                 return;
             }
+            //landing from jump
+            if (velocityVector._y > -15 && currentAnimation?.name === AnimationEnums.falling_idle) {
+                this.playControlledAnimation(this.AnimationContainer.getAnimationByName(AnimationEnums.landing_from_jump));
+                return;
+            }
 
-            if (velocityVector._y < -35) {
+            if (velocityVector._y < -45) {
                 if (currentAnimation?.name === AnimationEnums.falling_flat) return;
                 this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_flat));
                 return;
