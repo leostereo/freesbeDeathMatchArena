@@ -16,7 +16,7 @@ export class ForceBasedCharacter {
 
     async create_character() {
 
-        const res = await LoadAssetContainerAsync("./model/ybot.glb",
+        const res = await LoadAssetContainerAsync("./model/ybotVer2.glb",
             this.scene, { pluginOptions: { gltf: { animationStartMode: 0 } } })
         const root = res.meshes[0]
         root.scaling.scaleInPlace(2)

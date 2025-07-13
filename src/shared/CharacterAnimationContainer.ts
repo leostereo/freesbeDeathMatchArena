@@ -6,6 +6,7 @@ export enum AnimationEnums {
     run = "RUN",
     run_fast = "RUN_FAST",
     jump = "JUMP",
+    run_jump = "RUN_JUMP",
     throw_freesbe = "THROW_FREESBE",
     falling_flat = "IS_FALLING_FLAT",
     falling_impact = "IS_FALLING_FLAT_IMPACT",
@@ -175,6 +176,24 @@ export class CharacterAnimationContainer {
                     mustLoop: false,
                     speedRatio: 1.2,
                     to: 52
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const jumpAndRunAnimation = this.scene.getAnimationGroupByName('running and jump')
+        if (jumpAndRunAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: jumpAndRunAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.run_jump,
+                control: {
+                    from: 1,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.2,
+                    to: 62
                 }
             }
             this.characterAnimationVector.push(animationItem);

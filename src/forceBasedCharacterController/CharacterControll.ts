@@ -1,5 +1,5 @@
 import { CharacterAnimationContainer } from "@/shared/CharacterAnimationContainer";
-import { KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Vector3 } from "@babylonjs/core";
+import { HavokPlugin, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Vector3 } from "@babylonjs/core";
 import { CharacterState, State } from "./class/State";
 import { AnimationManager } from "./class/AnimationManager";
 
@@ -12,7 +12,7 @@ export class CharacterControll {
     private isBlockingKeyboard: false;
     public displayMesh: Mesh;
     private displayMeshAggregate: PhysicsAggregate;
-
+    private onMobileGround:boolean = false;
     // animationhandler
     // eventbinder.
     private inputDirection: Vector3 = Vector3.Zero();
@@ -49,6 +49,23 @@ export class CharacterControll {
         });
         this.displayMeshAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
         this.displayMeshAggregate.shape.material = { friction: this.CHARACTER_MATERIAL_FRICTION }
+
+        const physicsEngine = this.scene.getPhysicsEngine();
+        const currentPlugin = physicsEngine?.getPhysicsPlugin() as HavokPlugin;
+        currentPlugin.onTriggerCollisionObservable.add((ev)=>{
+
+            if(ev.type === PhysicsEventType.TRIGGER_ENTERED){
+                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay'){
+                    this.onMobileGround = true;
+                }
+            }
+            if(ev.type === PhysicsEventType.TRIGGER_EXITED){
+                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay'){
+                    this.onMobileGround = false;
+                }
+            }
+        })
+       
     }
 
     bindEvents() {
@@ -93,7 +110,7 @@ export class CharacterControll {
         this.AnimationManager.updateAnimationFromVelocity(currentVelocity, this.inputDirection,
             this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
         
-        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection);
+        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection,this.onMobileGround);
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
 
         if (this.State.wantJump) {
@@ -130,8 +147,12 @@ export class CharacterControll {
                 break;
         }
 
+        const currentVelocity = this.displayMeshAggregate.body.getLinearVelocity();
+
         this.AnimationManager.updateAnimationFromKeyBoard(this.State.wantsThrowFreesbe,
-            this.State.wantsCrossPunch, this.State.wantJump, this.AnimationContainer.getCurrentPlayingAnimation())
+            this.State.wantsCrossPunch, this.State.wantJump,
+             this.AnimationContainer.getCurrentPlayingAnimation(),
+            currentVelocity)
 
     }
 }

@@ -10,15 +10,10 @@ export enum CharacterState {
 
 export class State {
 
-    // public inAirSpeed = 8.0;
-    // private onLatchSpeed = 0.3;
-    // public jumpHeight = 3;
+
     public wantJump = false;
     public wantsThrowFreesbe = false;
     public wantsCrossPunch = false;
-    // public forwardLocalSpace = new Vector3(0, 0, 1);
-    // public characterOrientation = Quaternion.Identity();
-    // public characterGravity = new Vector3(0, -18, 0);
     private onGroundWalkSpeed = 1000;
     private onGroundRunSpeed = this.onGroundWalkSpeed * 5 / 3;
     private opossiteOnGroundSpeed = 2 * this.onGroundWalkSpeed;
@@ -32,24 +27,24 @@ export class State {
 
     }
 
-    getNextState(currentVelocity: Vector3) {
+    getNextState(currentVelocity: Vector3, onMobileGround:boolean) {
         if (currentVelocity._y === 0) {
             this.state = CharacterState.ON_GROUND;
         }
         //jump
-        if (currentVelocity._y > 1) {
+        if (currentVelocity._y > 1 && !onMobileGround) {
             this.state = CharacterState.IN_AIR;
         }
         //is falling
-        if (currentVelocity._y < -1) {
+        if (currentVelocity._y < -1 && !onMobileGround) {
             this.state = CharacterState.IN_AIR;
         }
         return this.state;
     }
 
-    getForceToApply(currentVelocity: Vector3, inputDirection: Vector3): Vector3 {
+    getForceToApply(currentVelocity: Vector3, inputDirection: Vector3, onMobileGround:boolean): Vector3 {
 
-        const state = this.getNextState(currentVelocity);
+        const state = this.getNextState(currentVelocity,onMobileGround);
         let forceToApply = Vector3.Zero();
 
         if (state == CharacterState.ON_GROUND) {
@@ -88,6 +83,10 @@ export class State {
                 forceToApply = inputDirection.scale(this.onGroundWalkSpeed);
             }
 
+            //need to push down character so it wont fly
+            if(onMobileGround){
+                forceToApply._y = -1000;
+            }
             //FINAL                    
             return forceToApply;
         }

@@ -1,9 +1,9 @@
 import { Scene } from "@babylonjs/core/scene";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { PhysicsAggregate } from "@babylonjs/core/Physics/v2/physicsAggregate";
-import { PhysicsMotionType, PhysicsPrestepType, PhysicsShapeType } from "@babylonjs/core/Physics/";
+import { PhysicsBody, PhysicsMotionType, PhysicsPrestepType, PhysicsShapeBox, PhysicsShapeSphere, PhysicsShapeType } from "@babylonjs/core/Physics/";
 import { GridMaterial } from "@babylonjs/materials";
-import { Mesh, Vector3 } from "@babylonjs/core";
+import { Color3, Mesh, Quaternion, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
 
 interface PlatformData {
   name: string;
@@ -22,16 +22,15 @@ export class Ground {
   constructor(private scene: Scene) {
     this.scene = scene;
     this._createGround();
-    //this._createElevator();
-    this._generateRandomPlatforms();
+    this._createElevator();
+    //this._generateRandomPlatforms();
   }
 
   _createGround(): void {
     const mesh = MeshBuilder.CreateGround("ground", { width: 60, height: 260 }, this.scene);
-    
+
     mesh.material = new GridMaterial('groundMaterial', this.scene);
 
-    
     const groundAgg = new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0 }, this.scene);
     groundAgg.shape.material = {friction:1}
   }
@@ -44,17 +43,26 @@ export class Ground {
   }
 
   _createElevator(): void {
-    const platform = MeshBuilder.CreateBox('plat', { width: 26.2, height: 0.2, depth: 26.2 })
+    const platform = MeshBuilder.CreateBox('plat', { width: 25, height: 0.2, depth: 25 })
     platform.position = new Vector3(10, 10, 40)
-    const platformAg = new PhysicsAggregate(platform, PhysicsShapeType.BOX, { mass: 100, restitution:0 });
+    const platformAg = new PhysicsAggregate(platform, PhysicsShapeType.BOX, { mass: 100, restitution: 0 });
 
     platformAg.body.setMotionType(PhysicsMotionType.ANIMATED);
     platformAg.body.setPrestepType(PhysicsPrestepType.ACTION);
+    
+    const platforTrigger = MeshBuilder.CreateBox('trigger', { width: 25, height: 6, depth: 25 })
+    platforTrigger.isVisible = false;
+    platforTrigger.parent = platform
+    const platformAgTrigger = new PhysicsAggregate(platforTrigger, PhysicsShapeType.BOX, { mass: 100, restitution: 0 });
+
+    platformAgTrigger.body.setMotionType(PhysicsMotionType.ANIMATED);
+    platformAgTrigger.body.setPrestepType(PhysicsPrestepType.ACTION);
+    platformAgTrigger.shape.isTrigger = true;
 
     var t = 0;
 
     this.scene.onBeforeRenderObservable.add(() => {
-     platform.position.y = 14 + Math.sin(t) * 14;
+     platform.position.y = 10 + Math.sin(t) * 14;
       t += 0.02;
     });
 

@@ -42,3 +42,9 @@ Based on old good https://github.com/minibao/babylon-vite
 - [muy util](https://playground.babylonjs.com/#9GE7HV#9)
 - [rotating particles](https://forum.babylonjs.com/t/emitter-rotation-particles/41819/3)
 - [throwing balls](https://playground.babylonjs.com/#8HZFUZ#230)
+
+TODO
+- remove delay from falling when in the air
+- remove delay from jump to idle
+- remove delay when running and jump
+- walk on slopes
