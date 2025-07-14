@@ -12,7 +12,8 @@ export enum AnimationEnums {
     falling_impact = "IS_FALLING_FLAT_IMPACT",
     falling_idle = "IS_FALLING_IDLE",
     cross_punch = "CROSS_PUNCH",
-    landing_from_jump = "LANDING_FROM_JUMP"
+    landing_from_jump = "LANDING_FROM_JUMP",
+    baseball_pitch = "BASEBALL_PITCH"
 }
 
 
@@ -102,7 +103,7 @@ export class CharacterAnimationContainer {
                     isAdditive: false,
                     mustLoop: false,
                     speedRatio: 1.6,
-                    to: 200
+                    to: 160
                 }
             }
             this.characterAnimationVector.push(animationItem);
@@ -218,6 +219,24 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
+        const baseBallPitchJumpAnimation = this.scene.getAnimationGroupByName('baseball pitch')
+        if (baseBallPitchJumpAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: baseBallPitchJumpAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.baseball_pitch,
+                control: {
+                    from: 25,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.6,
+                    to: 190
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
         // this.CROSS_PUNCH = scene.getAnimationGroupByName('cross punch');
 
 
@@ -235,6 +254,10 @@ export class CharacterAnimationContainer {
 
     public isAnyAnimationLatched():boolean{
         return this.characterAnimationVector.some((animation)=>animation.latched);
+    }
+
+    public getLatchedAnimation():CharacterAnimationItem|null{
+        return this.characterAnimationVector.find((animation)=>animation.latched) ?? null;
     }
 
 }

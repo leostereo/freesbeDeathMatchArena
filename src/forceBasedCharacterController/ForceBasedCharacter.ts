@@ -1,7 +1,7 @@
 import { CharacterAnimationContainer } from "@/shared/CharacterAnimationContainer";
 import { ArcRotateCamera, CharacterShapeOptions, CharacterSupportedState, CharacterSurfaceInfo, KeyboardEventTypes, LoadAssetContainerAsync, Matrix, Mesh, MeshBuilder, NodeRenderGraphBuildState, PhysicsAggregate, PhysicsBody, PhysicsCharacterController, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Space, Vector3 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-import { CharacterControll } from "./CharacterControll";
+import { CharacterControll } from "./class/CharacterControll";
 
 
 export class ForceBasedCharacter {

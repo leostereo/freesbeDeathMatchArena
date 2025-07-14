@@ -1,20 +1,25 @@
 import { CharacterAnimationContainer } from "@/shared/CharacterAnimationContainer";
 import { HavokPlugin, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Vector3 } from "@babylonjs/core";
-import { CharacterState, State } from "./class/State";
-import { AnimationManager } from "./class/AnimationManager";
+import { CharacterState, State } from "./State";
+import { AnimationManager } from "./AnimationManager";
+import { AnimationEvents } from "./AnimationEvents";
 
 
 export class CharacterControll {
+    //Clases
     private scene: Scene;
     private AnimationContainer: CharacterAnimationContainer;
     private AnimationManager: AnimationManager;
     private State: State;
-    private isBlockingKeyboard: false;
+    private AnimationEvents: AnimationEvents;
+
+    //CharacterControll properties
     public displayMesh: Mesh;
     private displayMeshAggregate: PhysicsAggregate;
     private onMobileGround: boolean = false;
-    // animationhandler
-    // eventbinder.
+    private isBlockingKeyboard: false;
+
+    //Behaviour Parameters
     private inputDirection: Vector3 = Vector3.Zero();
     private WALK_FORCE_MULTIPLIER = 500;
     private CHARACTER_MASS = 50;
@@ -26,6 +31,7 @@ export class CharacterControll {
         this.AnimationContainer = animationContainer;
         this.AnimationManager = new AnimationManager(this.AnimationContainer);
         this.State = new State();
+        this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer)
 
         this.createAggregateForCharacter()
 
@@ -81,13 +87,12 @@ export class CharacterControll {
 
     onBeforeRender() {
 
-        if (this.displayMesh.position.y < -40)
-            // this.displayMesh.position.set(0, 10, 0);
-
+        //Update character rotation. 
         this.displayMeshAggregate.body.disablePreStep = true;
         let x = this.inputDirection.x;
         let z = this.inputDirection.z;
         if (x !== 0 || z !== 0) {
+
             if (!this.displayMesh.rotationQuaternion) {
                 this.displayMesh.rotationQuaternion = this.displayMesh.rotation.toQuaternion();
             }
@@ -101,6 +106,19 @@ export class CharacterControll {
             );
 
             this.displayMeshAggregate.body.disablePreStep = false;
+
+
+            //update AnimationEvents
+            const currentPosition = this.displayMesh.position;
+            this.AnimationEvents.updateCharacterInfo({
+                pointingVector: new Vector3(1,0,0).applyRotationQuaternion(this.displayMesh.rotationQuaternion).normalize(),
+                position: currentPosition
+            })
+
+            //Avoid falling from ground
+            if (currentPosition.y < -40)
+                currentPosition.set(0, 10, 0);
+
         }
     }
 
@@ -118,18 +136,18 @@ export class CharacterControll {
                 this.displayMeshAggregate.body.applyImpulse(desiredForce, this.displayMesh.absolutePosition);
             }, 500)
             this.State.wantJump = false;
-
         }
-
     }
 
+
     onKeyboard(kbInfo: KeyboardInfo) {
-        
-        if (this.AnimationContainer.isAnyAnimationLatched()) {
+
+        const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;
+
+        if (this.AnimationContainer.isAnyAnimationLatched() && muliplier === 1) {
             return;
         }
-        
-        const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;
+
         switch (kbInfo.event.key) {
             case 'ArrowUp':
                 this.inputDirection.x = -muliplier;
@@ -146,12 +164,15 @@ export class CharacterControll {
             case 'j':
                 this.State.wantsThrowFreesbe = Boolean(muliplier);
                 break;
+            case 'k':
+                this.State.wantsCrossPunch = Boolean(muliplier);
+                break;
             case 'Shift':
                 this.State.wantRun = Boolean(muliplier);
                 break;
             case ' ':
                 if (this.State.state === CharacterState.IN_AIR) return;
-                this.State.wantJump = true;
+                this.State.wantJump = Boolean(muliplier);
                 break;
         }
 
@@ -162,4 +183,60 @@ export class CharacterControll {
         )
 
     }
+
+    // onKeyboard(kbInfo: KeyboardInfo) {
+    //     // Input to direction
+    //     // from keys down/up, update the Vector3 inputDirection to match the intended direction. Jump with space
+
+    //     switch (kbInfo.type) {
+    //         case KeyboardEventTypes.KEYDOWN:
+    //             if (this.AnimationContainer.isAnyAnimationLatched()) return;
+    //             // this.isKeyDown = true
+    //             if (kbInfo.event.key == 'w' || kbInfo.event.key == 'ArrowUp') {
+    //                 this.inputDirection.x = -1
+    //             } else if (kbInfo.event.key == 's' || kbInfo.event.key == 'ArrowDown') {
+    //                 this.inputDirection.x = 1
+    //             } else if (kbInfo.event.key == 'a' || kbInfo.event.key == 'ArrowLeft') {
+    //                 this.inputDirection.z = -1
+    //             } else if (kbInfo.event.key == 'd' || kbInfo.event.key == 'ArrowRight') {
+    //                 this.inputDirection.z = 1
+    //             } else if (kbInfo.event.key == ' ') {
+    //             if (this.State.state === CharacterState.IN_AIR) return;
+    //             this.State.wantJump = true;
+
+    //             } else if (kbInfo.event.key == 'h') {
+    //                 this.State.wantsThrowFreesbe = true;
+    //             } else if (kbInfo.event.key == 'j') {
+    //                 this.State.wantsCrossPunch = true;
+    //             } if (kbInfo.event.shiftKey) {
+    //                 this.State.wantRun = true
+    //             }
+    //             break
+    //         case KeyboardEventTypes.KEYUP:
+    //             // this.isKeyDown = false
+    //             this.State.wantRun = false
+    //             if (kbInfo.event.key == 'w' || kbInfo.event.key == 's' || kbInfo.event.key == 'ArrowUp' || kbInfo.event.key == 'ArrowDown') {
+    //                 this.inputDirection.x = 0
+    //             }
+    //             if (kbInfo.event.key == 'a' || kbInfo.event.key == 'd' || kbInfo.event.key == 'ArrowLeft' || kbInfo.event.key == 'ArrowRight') {
+    //                 this.inputDirection.z = 0
+    //             } else if (kbInfo.event.key == ' ') {
+    //                 this.State.wantJump = false
+    //             } else if (kbInfo.event.key === 'h') {
+    //                 this.State.wantsThrowFreesbe = false;
+    //             } else if (kbInfo.event.key === 'j') {
+    //                 this.State.wantsCrossPunch = false;
+    //             }
+    //             break
+    //     }
+
+    //     this.AnimationManager.updateAnimationFromKeyBoard(
+    //         this.State.wantsThrowFreesbe,
+    //         this.State.wantsCrossPunch, this.State.wantJump,
+    //         this.AnimationContainer.getCurrentPlayingAnimation(),
+    //     )
+
+    // }
+
+
 }

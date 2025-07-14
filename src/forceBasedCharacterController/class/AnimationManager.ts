@@ -23,37 +23,36 @@ export class AnimationManager {
             this.playControlledAnimation(animation);
             return;
         }
-
+        
         if (throwFreesbe && currentAnimation?.name !== AnimationEnums.throw_freesbe) {
             const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
+            console.log('latched')
             animation.latched = true;
             this.playControlledAnimation(animation);
             return;
         }
-        if(crossPunch){
-            //
+
+        // if (!throwFreesbe && currentAnimation?.name === AnimationEnums.throw_freesbe) {
+        //     this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.idle))
+        //     return
+        // }
+
+        if (crossPunch) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.baseball_pitch);
+            // animation.latched = true;
+            this.playControlledAnimation(animation);
+            console.log(this.AnimationContainer.getCurrentPlayingAnimation())
+            return;
         }
+
     }
-    
+
     public updateAnimationFromVelocity(velocityVector: Vector3, inputDirection: Vector3,
         currentAnimation: CharacterAnimationItem | undefined, state: CharacterState): void {
 
         if (currentAnimation?.latched) return;
         //Ground animations
         if (state == CharacterState.ON_GROUND) {
-
-            if ((Math.abs(velocityVector._x) <=1 && Math.abs(velocityVector._z) <= 1)) {
-
-                if (currentAnimation?.name === AnimationEnums.idle 
-                    || currentAnimation?.name === AnimationEnums.falling_impact
-                    || currentAnimation?.name === AnimationEnums.landing_from_jump) return;
-
-                this.playAnimationLoop(
-                    this.AnimationContainer.getAnimationByName(AnimationEnums.idle)
-                )
-
-                return
-            }
 
             if ((Math.abs(velocityVector._x) > 29 || Math.abs(velocityVector._z) > 29)) {
                 if (currentAnimation?.name === AnimationEnums.run_fast) return;
@@ -79,6 +78,20 @@ export class AnimationManager {
                 this.playAnimationLoop(
                     this.AnimationContainer.getAnimationByName(AnimationEnums.walk)
                 )
+                return
+            }
+
+            if ((Math.abs(velocityVector._x) >= 0 && Math.abs(velocityVector._z) >= 0 )) {
+
+                if (currentAnimation?.name === AnimationEnums.idle
+                    || currentAnimation?.name === AnimationEnums.falling_impact
+                    || currentAnimation?.name === AnimationEnums.landing_from_jump) return;
+
+                this.playAnimationLoop(
+                    this.AnimationContainer.getAnimationByName(AnimationEnums.idle)
+                    // this.AnimationContainer.getAnimationByName(AnimationEnums.run_jump)
+                )
+
                 return
             }
 
@@ -113,7 +126,7 @@ export class AnimationManager {
         }
     }
 
-    
+
     private playAnimationLoop(animation: CharacterAnimationItem): void {
         this.AnimationContainer.getCurrentPlayingAnimation()?.animation.pause();
         animation.animation.play(true);
@@ -121,7 +134,7 @@ export class AnimationManager {
 
     private playControlledAnimation(animation: CharacterAnimationItem) {
         this.AnimationContainer.getCurrentPlayingAnimation()?.animation.stop();
-        if (animation.control) {
+        if (animation?.control) {
             animation.animation.start(
                 animation.control.mustLoop,
                 animation.control.speedRatio,

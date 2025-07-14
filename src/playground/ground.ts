@@ -23,7 +23,7 @@ export class Ground {
     this.scene = scene;
     this._createGround();
     this._createElevator();
-    //this._generateRandomPlatforms();
+    this._generateRandomPlatforms();
   }
 
   _createGround(): void {
