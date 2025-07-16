@@ -1,4 +1,4 @@
-import { AnimationEnums, CharacterAnimationContainer, CharacterAnimationItem } from "@/shared/CharacterAnimationContainer";
+import { AnimationEnums, CharacterAnimationContainer, CharacterAnimationItem } from "@/shared/class/CharacterAnimationContainer";
 import { Vector3 } from "@babylonjs/core";
 import { CharacterState } from "./State";
 
@@ -15,7 +15,7 @@ export class AnimationManager {
     }
 
     public updateAnimationFromKeyBoard(throwFreesbe: boolean, crossPunch: boolean, jump: boolean,
-        currentAnimation: CharacterAnimationItem | undefined): void {
+        currentAnimation: CharacterAnimationItem | undefined, state: CharacterState): void {
 
         if (jump && currentAnimation?.name !== AnimationEnums.jump) {
             const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.jump);
@@ -23,14 +23,21 @@ export class AnimationManager {
             this.playControlledAnimation(animation);
             return;
         }
-        
-        if (throwFreesbe && currentAnimation?.name !== AnimationEnums.throw_freesbe) {
-            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
-            console.log('latched')
+
+        if (throwFreesbe && state === CharacterState.IN_AIR) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.baseball_pitch);
             animation.latched = true;
             this.playControlledAnimation(animation);
             return;
         }
+
+        if (throwFreesbe && currentAnimation?.name !== AnimationEnums.throw_freesbe) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
+            animation.latched = true;
+            this.playControlledAnimation(animation);
+            return;
+        }
+
 
         // if (!throwFreesbe && currentAnimation?.name === AnimationEnums.throw_freesbe) {
         //     this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.idle))
@@ -41,7 +48,6 @@ export class AnimationManager {
             const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.baseball_pitch);
             // animation.latched = true;
             this.playControlledAnimation(animation);
-            console.log(this.AnimationContainer.getCurrentPlayingAnimation())
             return;
         }
 
@@ -81,7 +87,7 @@ export class AnimationManager {
                 return
             }
 
-            if ((Math.abs(velocityVector._x) >= 0 && Math.abs(velocityVector._z) >= 0 )) {
+            if ((Math.abs(velocityVector._x) >= 0 && Math.abs(velocityVector._z) >= 0)) {
 
                 if (currentAnimation?.name === AnimationEnums.idle
                     || currentAnimation?.name === AnimationEnums.falling_impact
@@ -89,7 +95,6 @@ export class AnimationManager {
 
                 this.playAnimationLoop(
                     this.AnimationContainer.getAnimationByName(AnimationEnums.idle)
-                    // this.AnimationContainer.getAnimationByName(AnimationEnums.run_jump)
                 )
 
                 return
@@ -107,7 +112,9 @@ export class AnimationManager {
             }
             //landing from jump
             if (velocityVector._y > -15 && currentAnimation?.name === AnimationEnums.falling_idle) {
-                this.playControlledAnimation(this.AnimationContainer.getAnimationByName(AnimationEnums.landing_from_jump));
+                const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
+                animation.latched = true;
+                this.playControlledAnimation(animation);
                 return;
             }
 

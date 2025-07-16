@@ -102,7 +102,7 @@ export class CharacterAnimationContainer {
                     from: 1,
                     isAdditive: false,
                     mustLoop: false,
-                    speedRatio: 1.6,
+                    speedRatio: 2.2,
                     to: 160
                 }
             }
@@ -227,19 +227,17 @@ export class CharacterAnimationContainer {
                 currentlyPlay: false,
                 name: AnimationEnums.baseball_pitch,
                 control: {
-                    from: 25,
+                    from: 90,
                     isAdditive: false,
                     mustLoop: false,
-                    speedRatio: 1.6,
-                    to: 190
+                    speedRatio: 2.4,
+                    to: 140
                 }
             }
             this.characterAnimationVector.push(animationItem);
         }
 
         // this.CROSS_PUNCH = scene.getAnimationGroupByName('cross punch');
-
-
 
     }
 

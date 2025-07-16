@@ -1,4 +1,4 @@
-import { CharacterAnimationContainer } from "@/shared/CharacterAnimationContainer";
+import { CharacterAnimationContainer } from "@/shared/class/CharacterAnimationContainer";
 import { HavokPlugin, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Vector3 } from "@babylonjs/core";
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
@@ -111,7 +111,7 @@ export class CharacterControll {
             //update AnimationEvents
             const currentPosition = this.displayMesh.position;
             this.AnimationEvents.updateCharacterInfo({
-                pointingVector: new Vector3(1,0,0).applyRotationQuaternion(this.displayMesh.rotationQuaternion).normalize(),
+                pointingVector: new Vector3(1, 0, 0).applyRotationQuaternion(this.displayMesh.rotationQuaternion).normalize(),
                 position: currentPosition
             })
 
@@ -141,7 +141,6 @@ export class CharacterControll {
 
 
     onKeyboard(kbInfo: KeyboardInfo) {
-
         const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;
 
         if (this.AnimationContainer.isAnyAnimationLatched() && muliplier === 1) {
@@ -180,6 +179,7 @@ export class CharacterControll {
         this.AnimationManager.updateAnimationFromKeyBoard(this.State.wantsThrowFreesbe,
             this.State.wantsCrossPunch, this.State.wantJump,
             this.AnimationContainer.getCurrentPlayingAnimation(),
+            this.State.state
         )
 
     }
