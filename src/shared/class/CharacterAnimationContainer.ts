@@ -212,8 +212,8 @@ export class CharacterAnimationContainer {
                     from: 25,
                     isAdditive: false,
                     mustLoop: false,
-                    speedRatio: 1.2,
-                    to: 120
+                    speedRatio: 1.8,
+                    to: 100
                 }
             }
             this.characterAnimationVector.push(animationItem);

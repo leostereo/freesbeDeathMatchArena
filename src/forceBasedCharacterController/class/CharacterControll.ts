@@ -39,14 +39,18 @@ export class CharacterControll {
 
     private createAggregateForCharacter() {
 
-        this.displayMesh = MeshBuilder.CreateBox("CharacterDisplay",
-            { width: 2, height: 4, depth: 2 },
+        // this.displayMesh = MeshBuilder.CreateBox("CharacterDisplay",
+        //     { width: 2, height: 4, depth: 2 },
+        //     this.scene);
+
+        this.displayMesh = MeshBuilder.CreateCapsule("CharacterDisplay",
+            { radius:1,height:4 },
             this.scene);
 
         this.displayMesh.position._y = 15;
         this.displayMesh.isVisible = false;
 
-        this.displayMeshAggregate = new PhysicsAggregate(this.displayMesh, PhysicsShapeType.BOX, { mass: 10, restitution: 0 }, this.scene);
+        this.displayMeshAggregate = new PhysicsAggregate(this.displayMesh, PhysicsShapeType.CAPSULE, { mass: 10, restitution: 0 }, this.scene);
         this.displayMeshAggregate.body.setMassProperties({
             mass: this.CHARACTER_MASS,
             centerOfMass: new Vector3(0, 0, 0),
@@ -59,6 +63,8 @@ export class CharacterControll {
         const physicsEngine = this.scene.getPhysicsEngine();
         const currentPlugin = physicsEngine?.getPhysicsPlugin() as HavokPlugin;
         currentPlugin.onTriggerCollisionObservable.add((ev) => {
+
+console.log(ev.collidedAgainst.transformNode.name)
 
             if (ev.type === PhysicsEventType.TRIGGER_ENTERED) {
                 if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay') {

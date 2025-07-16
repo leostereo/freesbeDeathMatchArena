@@ -45,7 +45,7 @@ export class AnimationEvents {
 
         const landAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.landing_from_jump);
         const releaseLatchEvent = new AnimationEvent(
-            120,
+            100,
             () => {
                 landAnimation.latched = false;
             },
@@ -135,16 +135,12 @@ export class AnimationEvents {
                      this.characterOrientation.pointingVector.x);
 
                 freesbe.rotation = new Vector3(Math.PI/2,targetAngle,0)
+                freesbe.position.y = freesbe.position.y + 1.5;
 
-                freesbe.position.y = freesbe.position.y + 3;
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
-
-
                 freesbeAggregate.body.applyImpulse(this.characterOrientation.pointingVector.scale(500), freesbe.absolutePosition);
                 freesbeAggregate.body.setCollisionCallbackEnabled(true)
                 freesbeAggregate.body.getCollisionObservable().add(bodyCollideCB);
-
-
 
                 setTimeout(() => {
                     freesbe.dispose()
