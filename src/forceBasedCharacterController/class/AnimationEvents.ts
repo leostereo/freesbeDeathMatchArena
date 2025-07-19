@@ -77,7 +77,7 @@ export class AnimationEvents {
             () => {
                 const freesbe = MeshBuilder.CreateCylinder('freesbe', { diameter: 1, height: 0.1 })
                 freesbe.position = this.characterOrientation.position.clone();
-                freesbe.position.y = freesbe.position.y + 3;
+                freesbe.position.y = freesbe.position.y + 1.2;
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
 
 

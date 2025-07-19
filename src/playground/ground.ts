@@ -28,11 +28,11 @@ export class Ground {
 
   _createGround(): void {
     const mesh = MeshBuilder.CreateGround("ground", { width: 60, height: 260 }, this.scene);
-
     mesh.material = new GridMaterial('groundMaterial', this.scene);
 
     const groundAgg = new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0 }, this.scene);
     groundAgg.shape.material = {friction:1}
+
   }
 
   _createSphere(): void {

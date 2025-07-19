@@ -1,5 +1,5 @@
 import { CharacterAnimationContainer } from "@/shared/class/CharacterAnimationContainer";
-import { HavokPlugin, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Vector3 } from "@babylonjs/core";
+import { HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Vector3 } from "@babylonjs/core";
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
@@ -44,7 +44,7 @@ export class CharacterControll {
         //     this.scene);
 
         this.displayMesh = MeshBuilder.CreateCapsule("CharacterDisplay",
-            { radius:1,height:4 },
+            { radius: 1, height: 4 },
             this.scene);
 
         this.displayMesh.position._y = 15;
@@ -58,13 +58,15 @@ export class CharacterControll {
             inertiaOrientation: new Quaternion(0, 0, 0, 1)
         });
         this.displayMeshAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
+        //this.displayMeshAggregate.body.setCollisionCallbackEnabled(true)
+        //this.displayMeshAggregate.body.getCollisionObservable().add(this.bodyCollideCB);
+
         this.displayMeshAggregate.shape.material = { friction: this.CHARACTER_MATERIAL_FRICTION }
 
         const physicsEngine = this.scene.getPhysicsEngine();
         const currentPlugin = physicsEngine?.getPhysicsPlugin() as HavokPlugin;
         currentPlugin.onTriggerCollisionObservable.add((ev) => {
 
-console.log(ev.collidedAgainst.transformNode.name)
 
             if (ev.type === PhysicsEventType.TRIGGER_ENTERED) {
                 if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay') {
@@ -79,6 +81,15 @@ console.log(ev.collidedAgainst.transformNode.name)
         })
 
     }
+
+    // bodyCollideCB = (collision: IPhysicsCollisionEvent) => {
+    //     console.log(
+    //         collision.type,
+    //         collision.normal,
+    //         collision.collidedAgainst.transformNode.getChildMeshes()
+    //     )
+    //     collision.collidedAgainst.transformNode.name;
+    // }
 
     bindEvents() {
         this.scene.onBeforeRenderObservable.add(() => this.onBeforeRender())
