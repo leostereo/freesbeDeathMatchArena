@@ -7,11 +7,11 @@ import { Tools } from "@babylonjs/core/Misc/tools";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
 import { Ground } from "./ground";
-import { Character } from "./character/Character"
+import { Character } from "../characters/BBjsProposedCharacter/Character"
 import { Camera } from "@babylonjs/core";
 import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
-import { PhysicCharacter } from "@/experimental/Character";
-import { ForceBasedCharacter } from "@/forceBasedCharacterController/ForceBasedCharacter";
+import { PhysicCharacter } from "@/characters/experimental/Character";
+import { ForceBasedCharacter } from "@/characters/forceBasedCharacterController/ForceBasedCharacter";
 
 export default class MainScene {
   private camera: ArcRotateCamera;
