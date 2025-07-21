@@ -38,16 +38,18 @@ export class CharacterAnimationContainer {
     private characterAnimationGroup: AnimationGroup[];
     private characterAnimationVector: CharacterAnimationItem[] = [];
     private scene: Scene;
+    private prefix: string;
 
-    constructor(animationGroup: AnimationGroup[], scene: Scene) {
+    constructor(animationGroup: AnimationGroup[], prefix: string, scene: Scene) {
         this.characterAnimationGroup = animationGroup;
+        this.prefix = prefix;
         this.scene = scene;
         this.characterAnimationVectorInit();
     }
 
     private characterAnimationVectorInit() {
 
-        const idleAnimation = this.scene.getAnimationGroupByName('idle')
+        const idleAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_idle`)
         if (idleAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: idleAnimation,
@@ -58,7 +60,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const walkAnimation = this.scene.getAnimationGroupByName('walking')
+        const walkAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_walking`)
         if (walkAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: walkAnimation,
@@ -69,7 +71,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const runAnimation = this.scene.getAnimationGroupByName('slow running')
+        const runAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_slow running`)
         if (runAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: runAnimation,
@@ -80,7 +82,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const runFastAnimation = this.scene.getAnimationGroupByName('fast running')
+        const runFastAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_fast running`)
         if (runFastAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: runFastAnimation,
@@ -91,7 +93,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const freesbeAnimation = this.scene.getAnimationGroupByName('fresbe throw')
+        const freesbeAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_fresbe throw`)
         if (freesbeAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: freesbeAnimation,
@@ -99,7 +101,7 @@ export class CharacterAnimationContainer {
                 currentlyPlay: false,
                 name: AnimationEnums.throw_freesbe,
                 control: {
-                    from: 1,
+                    from: 50,
                     isAdditive: false,
                     mustLoop: false,
                     speedRatio: 2.2,
@@ -109,7 +111,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const fallingIdleAnimation = this.scene.getAnimationGroupByName('falling idle')
+        const fallingIdleAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_falling idle`)
         if (fallingIdleAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingIdleAnimation,
@@ -120,7 +122,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const fallingFlatAnimation = this.scene.getAnimationGroupByName('falling impact')
+        const fallingFlatAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_falling impact`)
         if (fallingFlatAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingFlatAnimation,
@@ -130,7 +132,7 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-        const fallingFlatImpactAnimation = this.scene.getAnimationGroupByName('falling flat impact')
+        const fallingFlatImpactAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_falling flat impact`)
         if (fallingFlatImpactAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingFlatImpactAnimation,
@@ -148,7 +150,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const crossPunchAnimation = this.scene.getAnimationGroupByName('cross punch')
+        const crossPunchAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_cross punch`)
         if (crossPunchAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: crossPunchAnimation,
@@ -165,7 +167,7 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-        const jumpUpAnimation = this.scene.getAnimationGroupByName('jump up')
+        const jumpUpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_jump up`)
         if (jumpUpAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: jumpUpAnimation,
@@ -183,7 +185,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const jumpAndRunAnimation = this.scene.getAnimationGroupByName('running and jump')
+        const jumpAndRunAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_running and jump`)
         if (jumpAndRunAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: jumpAndRunAnimation,
@@ -201,7 +203,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const landingFromJumpAnimation = this.scene.getAnimationGroupByName('landing')
+        const landingFromJumpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_landing`)
         if (landingFromJumpAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: landingFromJumpAnimation,
@@ -219,7 +221,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const baseBallPitchJumpAnimation = this.scene.getAnimationGroupByName('baseball pitch')
+        const baseBallPitchJumpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_baseball pitch`)
         if (baseBallPitchJumpAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: baseBallPitchJumpAnimation,
@@ -250,12 +252,12 @@ export class CharacterAnimationContainer {
         return animationItem;
     }
 
-    public isAnyAnimationLatched():boolean{
-        return this.characterAnimationVector.some((animation)=>animation.latched);
+    public isAnyAnimationLatched(): boolean {
+        return this.characterAnimationVector.some((animation) => animation.latched);
     }
 
-    public getLatchedAnimation():CharacterAnimationItem|null{
-        return this.characterAnimationVector.find((animation)=>animation.latched) ?? null;
+    public getLatchedAnimation(): CharacterAnimationItem | null {
+        return this.characterAnimationVector.find((animation) => animation.latched) ?? null;
     }
 
 }

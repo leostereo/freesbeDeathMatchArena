@@ -58,7 +58,7 @@ export class AnimationEvents {
     private bindThrowFreesbeEvents() {
 
         var bodyCollideCB = (collision: IPhysicsCollisionEvent) => {
-            new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact')
+          //  new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact')
         }
 
         const throwFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.throw_freesbe);

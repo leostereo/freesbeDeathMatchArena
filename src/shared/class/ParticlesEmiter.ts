@@ -37,7 +37,7 @@ export class ParticlesEmiter {
         const emiterposition = this.orientation.position.clone();
         const emiterOffset = this.orientation.pointingVector.clone();
         emiterOffset.scaleInPlace(5.5);
-        emiterposition._y += 2;
+        emiterposition._y += 1.2;
         emiterposition._x + emiterOffset._x;
         emiterposition._z += emiterOffset._z;
         const emiterDirection = this.orientation.pointingVector.clone();
