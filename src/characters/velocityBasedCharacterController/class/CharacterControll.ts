@@ -3,6 +3,7 @@ import { HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, 
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
+import { clearScreenDown } from "readline";
 
 
 export class CharacterControll {
@@ -146,14 +147,29 @@ export class CharacterControll {
             this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
 
         const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection, this.onMobileGround);
+
+        // if (this.State.state === CharacterState.IN_AIR) {
+        // }
+
+        console.log(this.State.state)
+        if (this.State.state === CharacterState.ON_GROUND) {
+            if(!this.AnimationContainer.isAnyAnimationLatched()){
+                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, this.onMobileGround)
+                this.displayMeshAggregate.body.setLinearVelocity(desiredVelocity)
+                console.log(desiredVelocity)
+            }
+        }
+
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
 
         if (this.State.wantJump) {
             setTimeout(() => {
+                console.log(desiredForce)
                 this.displayMeshAggregate.body.applyImpulse(desiredForce, this.displayMesh.absolutePosition);
-            }, 500)
+            }, 300)
             this.State.wantJump = false;
         }
+
     }
 
 

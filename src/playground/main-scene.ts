@@ -52,7 +52,7 @@ export default class MainScene {
     //new PhysicCharacter(this.scene);      //experimental
     new Ground(this.scene);
     //new Character(this.scene);            //physic controller based
-    new ForceBasedCharacter(this.scene);  // force propelhed
+    //new ForceBasedCharacter(this.scene);  // force propelhed
     new VelocityBasedCharacter(this.scene);  // linear velocity propelhed
     //new EnemySpawnClass(this.scene);
   }

@@ -20,7 +20,7 @@ export class ForceBasedCharacter {
             this.scene, { pluginOptions: { gltf: { animationStartMode: 0 } } })
         const root = res.meshes[0]
         root.scaling.scaleInPlace(2)
-        root.position._y = -2;
+        root.position._y = -1.6;
         root.rotate(new Vector3(0, 1, 0), Math.PI / 2, Space.WORLD)
         //root.position = Vector3.Zero();
         

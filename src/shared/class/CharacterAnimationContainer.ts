@@ -178,7 +178,7 @@ export class CharacterAnimationContainer {
                     from: 1,
                     isAdditive: false,
                     mustLoop: false,
-                    speedRatio: 1.2,
+                    speedRatio: 1.8,
                     to: 52
                 }
             }

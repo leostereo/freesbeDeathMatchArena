@@ -135,7 +135,7 @@ export class AnimationEvents {
                      this.characterOrientation.pointingVector.x);
 
                 freesbe.rotation = new Vector3(Math.PI/2,targetAngle,0)
-                freesbe.position.y = freesbe.position.y + 1.5;
+                freesbe.position.y = freesbe.position.y + 2;
 
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
                 freesbeAggregate.body.applyImpulse(this.characterOrientation.pointingVector.scale(500), freesbe.absolutePosition);
