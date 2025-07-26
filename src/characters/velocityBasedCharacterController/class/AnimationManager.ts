@@ -88,7 +88,7 @@ export class AnimationManager {
             }
 
             if ((Math.abs(velocityVector._x) >= 0 && Math.abs(velocityVector._z) >= 0)) {
-                
+
                 if (currentAnimation?.name === AnimationEnums.idle
                     || currentAnimation?.name === AnimationEnums.falling_impact
                     || currentAnimation?.name === AnimationEnums.landing_from_jump) return;
@@ -118,7 +118,7 @@ export class AnimationManager {
                 return;
             }
 
-            if (velocityVector._y < -45) {
+            if (velocityVector._y < -100) {
                 if (currentAnimation?.name === AnimationEnums.falling_flat) return;
                 this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_flat));
                 return;

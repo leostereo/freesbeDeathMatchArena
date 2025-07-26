@@ -1,5 +1,5 @@
 import { CharacterAnimationContainer } from "@/shared/class/CharacterAnimationContainer";
-import { HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, Vector3 } from "@babylonjs/core";
+import { Color3, HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, Scene, ShapeCastResult, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
@@ -19,12 +19,15 @@ export class CharacterControll {
     private displayMeshAggregate: PhysicsAggregate;
     private onMobileGround: boolean = false;
     private isBlockingKeyboard: false;
+    private sphereHitWorld: Mesh;
 
     //Behaviour Parameters
     private inputDirection: Vector3 = Vector3.Zero();
     private WALK_FORCE_MULTIPLIER = 500;
     private CHARACTER_MASS = 50;
     private CHARACTER_MATERIAL_FRICTION = 0.5 // 0 - 1 value;
+
+    private currentPlugin: HavokPlugin;
 
     constructor(scene: Scene, animationContainer: CharacterAnimationContainer) {
 
@@ -35,14 +38,18 @@ export class CharacterControll {
         this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer)
 
         this.createAggregateForCharacter()
+        this.createDebugSphere();
+    }
 
+    private createDebugSphere() {
+        // debug red sphere that will be placed where the shape cast detects the casting collision point
+        this.sphereHitWorld = MeshBuilder.CreateSphere("s", { diameter: 0.15 });
+        const sphereHitWorldMaterial = new StandardMaterial("sm");
+        sphereHitWorldMaterial.diffuseColor = new Color3(1, 0, 0);
+        this.sphereHitWorld.material = sphereHitWorldMaterial;
     }
 
     private createAggregateForCharacter() {
-
-        // this.displayMesh = MeshBuilder.CreateBox("CharacterDisplay",
-        //     { width: 2, height: 4, depth: 2 },
-        //     this.scene);
 
         this.displayMesh = MeshBuilder.CreateCapsule("CharacterDisplay",
             { radius: 0.6, height: 3 },
@@ -59,38 +66,13 @@ export class CharacterControll {
             inertiaOrientation: new Quaternion(0, 0, 0, 1)
         });
         this.displayMeshAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
-        //this.displayMeshAggregate.body.setCollisionCallbackEnabled(true)
-        //this.displayMeshAggregate.body.getCollisionObservable().add(this.bodyCollideCB);
 
         this.displayMeshAggregate.shape.material = { friction: this.CHARACTER_MATERIAL_FRICTION }
 
         const physicsEngine = this.scene.getPhysicsEngine();
-        const currentPlugin = physicsEngine?.getPhysicsPlugin() as HavokPlugin;
-        currentPlugin.onTriggerCollisionObservable.add((ev) => {
-
-
-            if (ev.type === PhysicsEventType.TRIGGER_ENTERED) {
-                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay') {
-                    this.onMobileGround = true;
-                }
-            }
-            if (ev.type === PhysicsEventType.TRIGGER_EXITED) {
-                if (ev.collidedAgainst.transformNode.name === 'CharacterDisplay') {
-                    this.onMobileGround = false;
-                }
-            }
-        })
+        this.currentPlugin = physicsEngine?.getPhysicsPlugin() as HavokPlugin;
 
     }
-
-    // bodyCollideCB = (collision: IPhysicsCollisionEvent) => {
-    //     console.log(
-    //         collision.type,
-    //         collision.normal,
-    //         collision.collidedAgainst.transformNode.getChildMeshes()
-    //     )
-    //     collision.collidedAgainst.transformNode.name;
-    // }
 
     bindEvents() {
         this.scene.onBeforeRenderObservable.add(() => this.onBeforeRender())
@@ -141,35 +123,42 @@ export class CharacterControll {
     }
 
     onAfterPhysics() {
+        const rayOrigin = this.displayMesh.position.clone();
+        rayOrigin.y -= 1.5; // Slightly above the character to ensure it's not inside the mesh
+        const rayDirection = Vector3.Down();
+        const ray = new Ray(rayOrigin, rayDirection, 50); // rayLength defines how far down the ray extends
+        const pickInfo = this.scene.pickWithRay(ray);
+        const downDistance = pickInfo?.distance!;
+        
+        const currentVelocity = this.displayMeshAggregate.body.getLinearVelocity().clone();
 
-        const currentVelocity = this.displayMeshAggregate.body.getLinearVelocity();
         this.AnimationManager.updateAnimationFromVelocity(currentVelocity, this.inputDirection,
             this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
 
-        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection, this.onMobileGround);
+        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection, this.onMobileGround,downDistance);
 
-        // if (this.State.state === CharacterState.IN_AIR) {
-        // }
-
-        console.log(this.State.state)
-        if (this.State.state === CharacterState.ON_GROUND) {
-            if(!this.AnimationContainer.isAnyAnimationLatched()){
-                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, this.onMobileGround)
-                this.displayMeshAggregate.body.setLinearVelocity(desiredVelocity)
-                console.log(desiredVelocity)
-            }
-        }
 
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
-
+        
         if (this.State.wantJump) {
+            desiredForce._x = currentVelocity._x * 50
+            desiredForce._z = currentVelocity._z * 50
+            console.log(desiredForce)
             setTimeout(() => {
-                console.log(desiredForce)
                 this.displayMeshAggregate.body.applyImpulse(desiredForce, this.displayMesh.absolutePosition);
             }, 300)
             this.State.wantJump = false;
         }
-
+        
+        if (this.State.state === CharacterState.ON_GROUND) {
+            
+            if (!this.AnimationContainer.isAnyAnimationLatched()) {
+                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, this.onMobileGround,downDistance)
+                currentVelocity._x = desiredVelocity._x;
+                currentVelocity._z = desiredVelocity._z;
+                this.displayMeshAggregate.body.setLinearVelocity(currentVelocity)
+            }
+        }
     }
 
 
@@ -216,60 +205,5 @@ export class CharacterControll {
         )
 
     }
-
-    // onKeyboard(kbInfo: KeyboardInfo) {
-    //     // Input to direction
-    //     // from keys down/up, update the Vector3 inputDirection to match the intended direction. Jump with space
-
-    //     switch (kbInfo.type) {
-    //         case KeyboardEventTypes.KEYDOWN:
-    //             if (this.AnimationContainer.isAnyAnimationLatched()) return;
-    //             // this.isKeyDown = true
-    //             if (kbInfo.event.key == 'w' || kbInfo.event.key == 'ArrowUp') {
-    //                 this.inputDirection.x = -1
-    //             } else if (kbInfo.event.key == 's' || kbInfo.event.key == 'ArrowDown') {
-    //                 this.inputDirection.x = 1
-    //             } else if (kbInfo.event.key == 'a' || kbInfo.event.key == 'ArrowLeft') {
-    //                 this.inputDirection.z = -1
-    //             } else if (kbInfo.event.key == 'd' || kbInfo.event.key == 'ArrowRight') {
-    //                 this.inputDirection.z = 1
-    //             } else if (kbInfo.event.key == ' ') {
-    //             if (this.State.state === CharacterState.IN_AIR) return;
-    //             this.State.wantJump = true;
-
-    //             } else if (kbInfo.event.key == 'h') {
-    //                 this.State.wantsThrowFreesbe = true;
-    //             } else if (kbInfo.event.key == 'j') {
-    //                 this.State.wantsCrossPunch = true;
-    //             } if (kbInfo.event.shiftKey) {
-    //                 this.State.wantRun = true
-    //             }
-    //             break
-    //         case KeyboardEventTypes.KEYUP:
-    //             // this.isKeyDown = false
-    //             this.State.wantRun = false
-    //             if (kbInfo.event.key == 'w' || kbInfo.event.key == 's' || kbInfo.event.key == 'ArrowUp' || kbInfo.event.key == 'ArrowDown') {
-    //                 this.inputDirection.x = 0
-    //             }
-    //             if (kbInfo.event.key == 'a' || kbInfo.event.key == 'd' || kbInfo.event.key == 'ArrowLeft' || kbInfo.event.key == 'ArrowRight') {
-    //                 this.inputDirection.z = 0
-    //             } else if (kbInfo.event.key == ' ') {
-    //                 this.State.wantJump = false
-    //             } else if (kbInfo.event.key === 'h') {
-    //                 this.State.wantsThrowFreesbe = false;
-    //             } else if (kbInfo.event.key === 'j') {
-    //                 this.State.wantsCrossPunch = false;
-    //             }
-    //             break
-    //     }
-
-    //     this.AnimationManager.updateAnimationFromKeyBoard(
-    //         this.State.wantsThrowFreesbe,
-    //         this.State.wantsCrossPunch, this.State.wantJump,
-    //         this.AnimationContainer.getCurrentPlayingAnimation(),
-    //     )
-
-    // }
-
 
 }
