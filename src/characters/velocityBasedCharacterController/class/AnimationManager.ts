@@ -57,6 +57,24 @@ export class AnimationManager {
         currentAnimation: CharacterAnimationItem | undefined, state: CharacterState): void {
 
         if (currentAnimation?.latched) return;
+            
+        //crash when falling.
+        if (velocityVector._y > -15 && state === CharacterState.FALLING_TO_CRASH) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.falling_impact)
+            animation.latched = true;
+            this.playControlledAnimation(animation);
+            return;
+        }
+        
+        //landing from jump
+        if (velocityVector._y > -15 && state === CharacterState.FALLING && 
+            currentAnimation?.name === AnimationEnums.falling_idle) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
+            animation.latched = true;
+            this.playControlledAnimation(animation);
+            return;
+        }
+
         //Ground animations
         if (state == CharacterState.ON_GROUND) {
 
@@ -103,22 +121,12 @@ export class AnimationManager {
             return
         }
 
+
+
         if (state = CharacterState.IN_AIR) {
 
-            //crash on the floor.
-            if (velocityVector._y > -15 && currentAnimation?.name === AnimationEnums.falling_flat) {
-                this.playControlledAnimation(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_impact));
-                return;
-            }
-            //landing from jump
-            if (velocityVector._y > -15 && currentAnimation?.name === AnimationEnums.falling_idle) {
-                const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
-                animation.latched = true;
-                this.playControlledAnimation(animation);
-                return;
-            }
 
-            if (velocityVector._y < -100) {
+            if (velocityVector._y < -60) {
                 if (currentAnimation?.name === AnimationEnums.falling_flat) return;
                 this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_flat));
                 return;
@@ -132,7 +140,6 @@ export class AnimationManager {
             return
         }
     }
-
 
     private playAnimationLoop(animation: CharacterAnimationItem): void {
         this.AnimationContainer.getCurrentPlayingAnimation()?.animation.pause();
@@ -151,5 +158,4 @@ export class AnimationManager {
             )
         }
     }
-
 }

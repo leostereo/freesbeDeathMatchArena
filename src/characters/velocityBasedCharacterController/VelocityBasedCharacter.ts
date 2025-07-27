@@ -21,7 +21,6 @@ export class VelocityBasedCharacter {
         const root = res.meshes[0]
         root.scaling.scaleInPlace(2)
         root.position._y = -1.6;
-        //root.position._z = 5;xxxxx
 
         const material = new StandardMaterial("material", this.scene);
         material.diffuseColor = new Color3(1, 0, 0);

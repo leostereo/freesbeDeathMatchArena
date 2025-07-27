@@ -3,7 +3,6 @@ import { Color3, HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, Keyboa
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
-import { clearScreenDown } from "readline";
 
 
 export class CharacterControll {
@@ -143,7 +142,6 @@ export class CharacterControll {
         if (this.State.wantJump) {
             desiredForce._x = currentVelocity._x * 50
             desiredForce._z = currentVelocity._z * 50
-            console.log(desiredForce)
             setTimeout(() => {
                 this.displayMeshAggregate.body.applyImpulse(desiredForce, this.displayMesh.absolutePosition);
             }, 300)
@@ -160,7 +158,6 @@ export class CharacterControll {
             }
         }
     }
-
 
     onKeyboard(kbInfo: KeyboardInfo) {
         const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;

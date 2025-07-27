@@ -18,6 +18,7 @@ export class AnimationEvents {
         this.animtionContainer = animationContainer;
         this.bindJumpUpEvents();
         this.bindLandEvents();
+        this.bindCrashEvents();
         this.bindThrowFreesbeEvents();
         this.bindAirThrowFreesbeEvents();
     }
@@ -55,10 +56,24 @@ export class AnimationEvents {
         landAnimation.animation.targetedAnimations[0].animation.addEvent(releaseLatchEvent);
     }
 
+    private bindCrashEvents() {
+
+        const landAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.falling_impact);
+        const releaseLatchEvent = new AnimationEvent(
+            95,
+            () => {
+                landAnimation.latched = false;
+            },
+            true,
+        );
+
+        landAnimation.animation.targetedAnimations[0].animation.addEvent(releaseLatchEvent);
+    }
+
     private bindThrowFreesbeEvents() {
 
         var bodyCollideCB = (collision: IPhysicsCollisionEvent) => {
-          //  new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact')
+            new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact')
         }
 
         const throwFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.throw_freesbe);
@@ -77,7 +92,7 @@ export class AnimationEvents {
             () => {
                 const freesbe = MeshBuilder.CreateCylinder('freesbe', { diameter: 1, height: 0.1 })
                 freesbe.position = this.characterOrientation.position.clone();
-                freesbe.position.y = freesbe.position.y + 1;
+                freesbe.position.addInPlace(this.characterOrientation.pointingVector.scale(3))
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
 
 
@@ -131,11 +146,13 @@ export class AnimationEvents {
             () => {
                 const freesbe = MeshBuilder.CreateCylinder('freesbe', { diameter: 1, height: 0.1 })
                 freesbe.position = this.characterOrientation.position.clone();
-                const targetAngle = Math.atan2(-this.characterOrientation.pointingVector.z,
-                     this.characterOrientation.pointingVector.x);
+                freesbe.position.addInPlace(this.characterOrientation.pointingVector.scale(3))
 
-                freesbe.rotation = new Vector3(Math.PI/2,targetAngle,0)
-                freesbe.position.y = freesbe.position.y + 2;
+                const targetAngle = Math.atan2(-this.characterOrientation.pointingVector.z,
+                    this.characterOrientation.pointingVector.x);
+
+                freesbe.rotation = new Vector3(Math.PI / 2, targetAngle, 0)
+                freesbe.position.y = freesbe.position.y + 1;
 
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
                 freesbeAggregate.body.applyImpulse(this.characterOrientation.pointingVector.scale(500), freesbe.absolutePosition);
