@@ -13,6 +13,7 @@ import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
 import { PhysicCharacter } from "@/characters/experimental/Character";
 import { ForceBasedCharacter } from "@/characters/forceBasedCharacterController/ForceBasedCharacter";
 import { VelocityBasedCharacter } from "@/characters/velocityBasedCharacterController/VelocityBasedCharacter";
+import { Player1Data, Player2Data } from "@/shared/class/PlayerData";
 
 export default class MainScene {
   private camera: ArcRotateCamera;
@@ -49,11 +50,12 @@ export default class MainScene {
 
   async loadComponents(): Promise<void> {
     // Load your files in order
-    //new PhysicCharacter(this.scene);      //experimental
+    //new PhysicCharacter(this.scene);                          //experimental
     new Ground(this.scene);
-    //new Character(this.scene);            //physic controller based
-    //new ForceBasedCharacter(this.scene);  // force propelhed
-    new VelocityBasedCharacter(this.scene);  // linear velocity propelhed
+    //new Character(this.scene);                                //physic controller based
+    //new ForceBasedCharacter(this.scene);                      // force propelhed
+    new VelocityBasedCharacter(this.scene,new Player1Data());   // linear velocity propelhed
+    new VelocityBasedCharacter(this.scene,new Player2Data());   // linear velocity propelhed
     //new EnemySpawnClass(this.scene);
   }
 }

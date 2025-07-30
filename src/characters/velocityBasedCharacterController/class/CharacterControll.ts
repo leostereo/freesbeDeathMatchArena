@@ -3,6 +3,7 @@ import { Color3, HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, Keyboa
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
+import { IPlayerData } from "@/shared/class/PlayerData";
 
 
 export class CharacterControll {
@@ -28,7 +29,7 @@ export class CharacterControll {
 
     private currentPlugin: HavokPlugin;
 
-    constructor(scene: Scene, animationContainer: CharacterAnimationContainer) {
+    constructor(scene: Scene, animationContainer: CharacterAnimationContainer, playerData: IPlayerData) {
 
         this.scene = scene;
         this.AnimationContainer = animationContainer;
@@ -36,7 +37,7 @@ export class CharacterControll {
         this.State = new State();
         this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer)
 
-        this.createAggregateForCharacter()
+        this.createAggregateForCharacter(playerData)
         this.createDebugSphere();
     }
 
@@ -48,13 +49,16 @@ export class CharacterControll {
         this.sphereHitWorld.material = sphereHitWorldMaterial;
     }
 
-    private createAggregateForCharacter() {
+    private createAggregateForCharacter(playerData: IPlayerData) {
 
         this.displayMesh = MeshBuilder.CreateCapsule("CharacterDisplay",
             { radius: 0.6, height: 3 },
             this.scene);
 
-        this.displayMesh.position._y = 15;
+        this.displayMesh.position._x = playerData.initPosition._x;
+        this.displayMesh.position._y = playerData.initPosition._y;
+        this.displayMesh.position._z = playerData.initPosition._z;
+
         this.displayMesh.isVisible = false;
 
         this.displayMeshAggregate = new PhysicsAggregate(this.displayMesh, PhysicsShapeType.CAPSULE, { mass: 10, restitution: 0 }, this.scene);
@@ -73,14 +77,14 @@ export class CharacterControll {
 
     }
 
-    bindEvents() {
+    bindEvents(playerData: IPlayerData) {
         this.scene.onBeforeRenderObservable.add(() => this.onBeforeRender())
         this.scene.onAfterPhysicsObservable.add(() => this.onAfterPhysics())
         this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => {
             if (this.isBlockingKeyboard) {
                 return
             }
-            this.onKeyboard(kbInfo)
+            this.onKeyboard(kbInfo, playerData)
         })
     }
 
@@ -128,17 +132,17 @@ export class CharacterControll {
         const ray = new Ray(rayOrigin, rayDirection, 50); // rayLength defines how far down the ray extends
         const pickInfo = this.scene.pickWithRay(ray);
         const downDistance = pickInfo?.distance!;
-        
+
         const currentVelocity = this.displayMeshAggregate.body.getLinearVelocity().clone();
 
         this.AnimationManager.updateAnimationFromVelocity(currentVelocity, this.inputDirection,
             this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
 
-        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection, this.onMobileGround,downDistance);
+        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection, this.onMobileGround, downDistance);
 
 
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
-        
+
         if (this.State.wantJump) {
             desiredForce._x = currentVelocity._x * 50
             desiredForce._z = currentVelocity._z * 50
@@ -147,11 +151,11 @@ export class CharacterControll {
             }, 300)
             this.State.wantJump = false;
         }
-        
+
         if (this.State.state === CharacterState.ON_GROUND) {
-            
+
             if (!this.AnimationContainer.isAnyAnimationLatched()) {
-                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, this.onMobileGround,downDistance)
+                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, this.onMobileGround, downDistance)
                 currentVelocity._x = desiredVelocity._x;
                 currentVelocity._z = desiredVelocity._z;
                 this.displayMeshAggregate.body.setLinearVelocity(currentVelocity)
@@ -159,7 +163,7 @@ export class CharacterControll {
         }
     }
 
-    onKeyboard(kbInfo: KeyboardInfo) {
+    onKeyboard(kbInfo: KeyboardInfo, playerData: IPlayerData) {
         const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;
 
         if (this.AnimationContainer.isAnyAnimationLatched() && muliplier === 1) {
@@ -167,30 +171,30 @@ export class CharacterControll {
         }
 
         switch (kbInfo.event.key) {
-            case 'w':
+            case playerData.up:
                 this.inputDirection.x = -muliplier;
                 break;
-            case 's':
+            case playerData.down:
                 this.inputDirection.x = muliplier;
                 break;
-            case 'a':
+            case playerData.left:
                 this.inputDirection.z = -muliplier;
                 break;
-            case 'd':
+            case playerData.right:
                 this.inputDirection.z = muliplier;
                 break;
-            case 'n':
+            case playerData.throw:
                 this.State.wantsThrowFreesbe = Boolean(muliplier);
                 break;
-            case 'v':
+            case playerData.roll:
                 this.State.wantsCrossPunch = Boolean(muliplier);
                 break;
-            case 'b':
-                this.State.wantRun = Boolean(muliplier);
-                break;
-            case 'm':
+            case playerData.jump:
                 if (this.State.state === CharacterState.IN_AIR) return;
                 this.State.wantJump = Boolean(muliplier);
+                break;
+            case 'bt':
+                this.State.wantRun = Boolean(muliplier);
                 break;
         }
 

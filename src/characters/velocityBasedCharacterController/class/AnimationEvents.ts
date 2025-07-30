@@ -133,7 +133,7 @@ export class AnimationEvents {
         const throwAirFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.baseball_pitch);
 
         const particlesEffect = new AnimationEvent(
-            125,
+            135,
             () => {
                 new ParticlesEmiter(this.scene, this.characterOrientation, null, 'throw')
             },
