@@ -27,7 +27,7 @@ export class State {
     public wantRun = false;
 
 
-    setNextState(currentVelocity: Vector3, onMobileGround:boolean,downDistance:number) {
+    setNextState(currentVelocity: Vector3, downDistance:number) {
 
         //console.log(downDistance)
 
@@ -54,9 +54,9 @@ export class State {
         
     }
 
-    getForceToApply(currentVelocity: Vector3, inputDirection: Vector3, onMobileGround:boolean,downDistance:number): Vector3 {
+    getForceToApply(currentVelocity: Vector3, downDistance:number): Vector3 {
 
-        this.setNextState(currentVelocity,onMobileGround,downDistance);
+        this.setNextState(currentVelocity,downDistance);
 
         let forceToApply = new Vector3(0,-6000,0);
 
@@ -73,9 +73,9 @@ export class State {
         return forceToApply;
     }
 
-    getVelocityToApply(currentVelocity: Vector3, inputDirection: Vector3, onMobileGround:boolean,downDistance:number): Vector3 {
+    getVelocityToApply(currentVelocity: Vector3, inputDirection: Vector3, downDistance:number): Vector3 {
 
-        const state = this.setNextState(currentVelocity,onMobileGround,downDistance);
+        const state = this.setNextState(currentVelocity,downDistance);
         let velocityToApply = Vector3.Zero();
 
         if (this.state == CharacterState.ON_GROUND) {

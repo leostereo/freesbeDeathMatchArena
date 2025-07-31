@@ -138,7 +138,7 @@ export class CharacterControll {
         this.AnimationManager.updateAnimationFromVelocity(currentVelocity, this.inputDirection,
             this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
 
-        const desiredForce = this.State.getForceToApply(currentVelocity, this.inputDirection, this.onMobileGround, downDistance);
+        const desiredForce = this.State.getForceToApply(currentVelocity,downDistance);
 
 
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
@@ -155,7 +155,7 @@ export class CharacterControll {
         if (this.State.state === CharacterState.ON_GROUND) {
 
             if (!this.AnimationContainer.isAnyAnimationLatched()) {
-                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, this.onMobileGround, downDistance)
+                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, downDistance)
                 currentVelocity._x = desiredVelocity._x;
                 currentVelocity._z = desiredVelocity._z;
                 this.displayMeshAggregate.body.setLinearVelocity(currentVelocity)
