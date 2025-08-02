@@ -1,7 +1,8 @@
 import { AnimationEnums, CharacterAnimationContainer } from "@/shared/class/CharacterAnimationContainer";
 import { ParticlesEmiter } from "@/shared/class/ParticlesEmiter";
+import { IPlayerData } from "@/shared/class/PlayerData";
 import { CharacterOrientationInfo } from "@/shared/types/CharacterTypes";
-import { Scene, Vector3, AnimationEvent, MeshBuilder, PhysicsAggregate, PhysicsShapeType, IPhysicsCollisionEvent, Tools } from "@babylonjs/core";
+import { Scene, Vector3, AnimationEvent, MeshBuilder, PhysicsAggregate, PhysicsShapeType, IPhysicsCollisionEvent, Tools, Color3, StandardMaterial } from "@babylonjs/core";
 
 
 export class AnimationEvents {
@@ -12,10 +13,15 @@ export class AnimationEvents {
         position: Vector3.Zero(),
         pointingVector: Vector3.Zero()
     };
+    private color:Color3;
+    private material : StandardMaterial;
 
-    constructor(scene: Scene, animationContainer: CharacterAnimationContainer) {
+    constructor(scene: Scene, animationContainer: CharacterAnimationContainer,playerData: IPlayerData) {
         this.scene = scene;
         this.animtionContainer = animationContainer;
+        this.color = playerData.color
+        this.material = new StandardMaterial("freesbe_material", this.scene);
+        this.material.diffuseColor = this.color;
         this.bindJumpUpEvents();
         this.bindLandEvents();
         this.bindCrashEvents();
@@ -73,7 +79,7 @@ export class AnimationEvents {
     private bindThrowFreesbeEvents() {
 
         var bodyCollideCB = (collision: IPhysicsCollisionEvent) => {
-            new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact')
+            new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact',this.color)
         }
 
         const throwFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.throw_freesbe);
@@ -81,7 +87,7 @@ export class AnimationEvents {
         const particlesEffect = new AnimationEvent(
             80,
             () => {
-                new ParticlesEmiter(this.scene, this.characterOrientation, null, 'throw')
+                new ParticlesEmiter(this.scene, this.characterOrientation, null, 'throw',this.color)
             },
             true,
         );
@@ -91,16 +97,13 @@ export class AnimationEvents {
             85,
             () => {
                 const freesbe = MeshBuilder.CreateCylinder('freesbe', { diameter: 1, height: 0.1 })
+                freesbe.material = this.material
                 freesbe.position = this.characterOrientation.position.clone();
                 freesbe.position.addInPlace(this.characterOrientation.pointingVector.scale(3))
                 var freesbeAggregate = new PhysicsAggregate(freesbe, PhysicsShapeType.SPHERE, { mass: 10, restitution: 0.75 }, this.scene);
-
-
                 freesbeAggregate.body.applyImpulse(this.characterOrientation.pointingVector.scale(1500), freesbe.absolutePosition);
                 freesbeAggregate.body.setCollisionCallbackEnabled(true)
                 freesbeAggregate.body.getCollisionObservable().add(bodyCollideCB);
-
-
 
                 setTimeout(() => {
                     freesbe.dispose()
@@ -127,7 +130,7 @@ export class AnimationEvents {
     private bindAirThrowFreesbeEvents() {
 
         var bodyCollideCB = (collision: IPhysicsCollisionEvent) => {
-            new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact')
+            new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact',this.color)
         }
 
         const throwAirFreesbeAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.baseball_pitch);
@@ -135,7 +138,7 @@ export class AnimationEvents {
         const particlesEffect = new AnimationEvent(
             135,
             () => {
-                new ParticlesEmiter(this.scene, this.characterOrientation, null, 'throw')
+                new ParticlesEmiter(this.scene, this.characterOrientation, null, 'throw',this.color)
             },
             true,
         );
@@ -145,6 +148,7 @@ export class AnimationEvents {
             135,
             () => {
                 const freesbe = MeshBuilder.CreateCylinder('freesbe', { diameter: 1, height: 0.1 })
+                freesbe.material = this.material;
                 freesbe.position = this.characterOrientation.position.clone();
                 freesbe.position.addInPlace(this.characterOrientation.pointingVector.scale(3))
 

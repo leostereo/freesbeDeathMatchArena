@@ -18,7 +18,6 @@ export class CharacterControll {
     public displayMesh: Mesh;
     private displayMeshAggregate: PhysicsAggregate;
     private onMobileGround: boolean = false;
-    private isBlockingKeyboard: false;
     private sphereHitWorld: Mesh;
 
     //Behaviour Parameters
@@ -35,7 +34,7 @@ export class CharacterControll {
         this.AnimationContainer = animationContainer;
         this.AnimationManager = new AnimationManager(this.AnimationContainer);
         this.State = new State();
-        this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer)
+        this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer,playerData)
 
         this.createAggregateForCharacter(playerData)
         this.createDebugSphere();
@@ -80,12 +79,8 @@ export class CharacterControll {
     bindEvents(playerData: IPlayerData) {
         this.scene.onBeforeRenderObservable.add(() => this.onBeforeRender())
         this.scene.onAfterPhysicsObservable.add(() => this.onAfterPhysics())
-        this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => {
-            if (this.isBlockingKeyboard) {
-                return
-            }
-            this.onKeyboard(kbInfo, playerData)
-        })
+        this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => this.onKeyboard(kbInfo, playerData))
+        this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => this.onDebugKeyboard(kbInfo))
     }
 
     onBeforeRender() {
@@ -126,6 +121,7 @@ export class CharacterControll {
     }
 
     onAfterPhysics() {
+
         const rayOrigin = this.displayMesh.position.clone();
         rayOrigin.y -= 1.5; // Slightly above the character to ensure it's not inside the mesh
         const rayDirection = Vector3.Down();
@@ -144,8 +140,8 @@ export class CharacterControll {
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
 
         if (this.State.wantJump) {
-            desiredForce._x = currentVelocity._x * 50
-            desiredForce._z = currentVelocity._z * 50
+            desiredForce._x = currentVelocity._x * 80
+            desiredForce._z = currentVelocity._z * 80
             setTimeout(() => {
                 this.displayMeshAggregate.body.applyImpulse(desiredForce, this.displayMesh.absolutePosition);
             }, 300)
@@ -207,4 +203,23 @@ export class CharacterControll {
 
     }
 
+    onDebugKeyboard(kbInfo: KeyboardInfo) {
+
+        switch (kbInfo.event.key) {
+            case '1':
+                console.log(this.State.state,this.displayMeshAggregate.body.getLinearVelocity()._y,this.AnimationContainer.getCurrentPlayingAnimation()?.name)
+                break;
+                
+                case '2':
+                console.log(this.AnimationContainer.getLatchedAnimation())
+                break;
+           
+        }
+
+        this.AnimationManager.updateAnimationFromKeyBoard(this.State.wantsThrowFreesbe,
+            this.State.wantsCrossPunch, this.State.wantJump,
+            this.AnimationContainer.getCurrentPlayingAnimation(),
+            this.State.state
+        )
+    }
 }

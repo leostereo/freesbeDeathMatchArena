@@ -214,7 +214,7 @@ export class CharacterAnimationContainer {
                     from: 25,
                     isAdditive: false,
                     mustLoop: false,
-                    speedRatio: 1.8,
+                    speedRatio: 2.2,
                     to: 100
                 }
             }
@@ -258,6 +258,13 @@ export class CharacterAnimationContainer {
 
     public getLatchedAnimation(): CharacterAnimationItem | null {
         return this.characterAnimationVector.find((animation) => animation.latched) ?? null;
+    }
+
+    public clearAllLatch():void{
+        const latchedAnimation = this.characterAnimationVector.filter((animation)=>animation.latched);
+        latchedAnimation.forEach(animation => {
+            animation.latched = false;
+        });
     }
 
 }

@@ -11,6 +11,7 @@ export default ({ mode }: any) => {
   const root = process.cwd();
   const env = loadEnv(mode, root);
   return defineConfig({
+    //base: 'freesbeDeathMatchArena',
     base: env.VITE_PUBLIC_PATH,
     root,
     // plugin

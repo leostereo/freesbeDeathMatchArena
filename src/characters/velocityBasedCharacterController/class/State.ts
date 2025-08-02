@@ -1,4 +1,5 @@
 import { Vector3 } from "@babylonjs/core";
+import { ThinSSRRenderingPipeline } from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/thinSSRRenderingPipeline";
 
 
 export enum CharacterState {
@@ -7,7 +8,9 @@ export enum CharacterState {
     ON_GROUND = 'ON_GROUND',
     START_JUMP = 'START_JUMP',
     FALLING = 'FALLING',
+    CLOSE_TO_LAND = 'CLOSE_TO_LAND',
     FALLING_TO_CRASH = 'FALLING_TO_CRASH',
+    CLOSE_TO_CRASH = 'CLOSE_TO_CRASH',
 }
 
 export class State {
@@ -16,7 +19,7 @@ export class State {
     public wantJump = false;
     public wantsThrowFreesbe = false;
     public wantsCrossPunch = false;
-    private onGroundWalkSpeed = 21;
+    private onGroundWalkSpeed = 15;
 
     private onGroundRunSpeed = this.onGroundWalkSpeed * 5 / 3;
     private opossiteOnGroundSpeed = 2 * this.onGroundWalkSpeed;
@@ -30,21 +33,33 @@ export class State {
     setNextState(currentVelocity: Vector3, downDistance:number) {
 
         //console.log(downDistance)
+        if(this.state === CharacterState.FALLING_TO_CRASH 
+            && downDistance < 3.5 && downDistance > 0){
+            this.state = CharacterState.CLOSE_TO_CRASH;
+            return;
+        }
+
+        if(this.state === CharacterState.FALLING 
+            && downDistance < 3.5 && downDistance > 0){
+            this.state = CharacterState.CLOSE_TO_LAND;
+            return;
+        }
+
+        if (downDistance > 0 && downDistance < 3.5) {
+            this.state = CharacterState.ON_GROUND;
+            return;
+        }
 
         if(currentVelocity._y < -60){
             this.state = CharacterState.FALLING_TO_CRASH
             return;
         }
 
-        if(currentVelocity._y < -15){
+        if(currentVelocity._y < -15 && downDistance > 3.5){
             this.state = CharacterState.FALLING
             return;
         }
         
-        if (downDistance > 0 && downDistance < 3.5) {
-            this.state = CharacterState.ON_GROUND;
-            return;
-        }
         //jump
         if (downDistance > 3) {
             this.state = CharacterState.IN_AIR;

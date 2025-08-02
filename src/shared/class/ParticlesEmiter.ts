@@ -1,4 +1,4 @@
-import { Color4, ParticleSystem, Scene, Texture } from "@babylonjs/core";
+import { Color3, Color4, ParticleSystem, Scene, Texture } from "@babylonjs/core";
 import { CharacterOrientationInfo } from "../types/CharacterTypes";
 
 export class ParticlesEmiter {
@@ -6,7 +6,8 @@ export class ParticlesEmiter {
     private orientation: CharacterOrientationInfo;
     private power: number | null;
 
-    constructor(scene: Scene, orientation: CharacterOrientationInfo, power: number | null, type: 'throw' | 'impact' | null) {
+    constructor(scene: Scene, orientation: CharacterOrientationInfo,
+         power: number | null, type: 'throw' | 'impact' | null,color:Color3) {
 
         this.scene = scene;
         this.orientation = orientation;
@@ -14,10 +15,10 @@ export class ParticlesEmiter {
 
         switch (type) {
             case 'throw':
-                this.createThrowParticlesSystem()
+                this.createThrowParticlesSystem(color)
                 break;
             case 'impact':
-                this.createImpactParticlesSystem()
+                this.createImpactParticlesSystem(color)
                 break;
         
             default:
@@ -26,7 +27,7 @@ export class ParticlesEmiter {
 
     }
 
-    private createThrowParticlesSystem() {
+    private createThrowParticlesSystem(color) {
 
         // Create a particle system
         var particleSystem = new ParticleSystem("particles", 2000, this.scene);
@@ -46,7 +47,7 @@ export class ParticlesEmiter {
         particleSystem.direction1 = emiterDirection.scaleInPlace(5)
 
         // Colors of all particles
-        particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0);
+        particleSystem.color1 = color;
         particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0);
         particleSystem.colorDead = new Color4(0, 0, 0.2, 0.0);
 
@@ -82,7 +83,7 @@ export class ParticlesEmiter {
 
     }
 
-    private createImpactParticlesSystem(){
+    private createImpactParticlesSystem(color){
             var particleSystem = new ParticleSystem("particles", 4000, this.scene);
 
             //Texture of each particle
@@ -92,7 +93,7 @@ export class ParticlesEmiter {
             particleSystem.emitter = this.orientation.position; // the starting location
 
             // Colors of all particles
-            particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0);
+            particleSystem.color1 = color;
             particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0);
             particleSystem.colorDead = new Color4(0, 0, 0.2, 0.0);
 

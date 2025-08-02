@@ -59,16 +59,17 @@ export class AnimationManager {
         if (currentAnimation?.latched) return;
             
         //crash when falling.
-        if (velocityVector._y > -15 && state === CharacterState.FALLING_TO_CRASH) {
+        if (state === CharacterState.CLOSE_TO_CRASH && 
+                currentAnimation?.name === AnimationEnums.falling_flat) {
             const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.falling_impact)
             animation.latched = true;
             this.playControlledAnimation(animation);
             return;
         }
-        
+
         //landing from jump
-        if (velocityVector._y > -15 && state === CharacterState.FALLING && 
-            currentAnimation?.name === AnimationEnums.falling_idle) {
+        if ( state === CharacterState.CLOSE_TO_LAND && 
+                currentAnimation?.name === AnimationEnums.falling_idle) {
             const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
             animation.latched = true;
             this.playControlledAnimation(animation);
@@ -84,7 +85,7 @@ export class AnimationManager {
                 return;
             }
 
-            if ((Math.abs(velocityVector._x) > 20 || Math.abs(velocityVector._z) > 20)) {
+            if ((Math.abs(velocityVector._x) > 14 || Math.abs(velocityVector._z) > 14)) {
                 if (currentAnimation?.name === AnimationEnums.run) return;
 
                 this.playAnimationLoop(
@@ -111,6 +112,8 @@ export class AnimationManager {
                     || currentAnimation?.name === AnimationEnums.falling_impact
                     || currentAnimation?.name === AnimationEnums.landing_from_jump) return;
 
+                this.AnimationContainer.clearAllLatch();
+
                 this.playAnimationLoop(
                     this.AnimationContainer.getAnimationByName(AnimationEnums.idle)
                 )
@@ -120,8 +123,6 @@ export class AnimationManager {
 
             return
         }
-
-
 
         if (state = CharacterState.IN_AIR) {
 
