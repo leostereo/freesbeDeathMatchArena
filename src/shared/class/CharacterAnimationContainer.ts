@@ -13,7 +13,8 @@ export enum AnimationEnums {
     falling_idle = "IS_FALLING_IDLE",
     cross_punch = "CROSS_PUNCH",
     landing_from_jump = "LANDING_FROM_JUMP",
-    baseball_pitch = "BASEBALL_PITCH"
+    baseball_pitch = "BASEBALL_PITCH",
+    sprinting_roll = "SPRINTING_ROLL"
 }
 
 
@@ -234,6 +235,23 @@ export class CharacterAnimationContainer {
                     mustLoop: false,
                     speedRatio: 2.4,
                     to: 140
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+        const sptrintingRollAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_sprinting roll`)
+        if (sptrintingRollAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: sptrintingRollAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.sprinting_roll,
+                control: {
+                    from: 1,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 2.4,
+                    to: 72
                 }
             }
             this.characterAnimationVector.push(animationItem);

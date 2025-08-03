@@ -17,7 +17,7 @@ export class VelocityBasedCharacter {
 
     async create_character(playerData:IPlayerData) {
 
-        const res = await LoadAssetContainerAsync("./model/ybotVer2.glb",
+        const res = await LoadAssetContainerAsync("./model/ybotV3.glb",
             this.scene, { pluginOptions: { gltf: { animationStartMode: 0 } } })
         const root = res.meshes[0]
         root.scaling.scaleInPlace(2)
@@ -59,6 +59,7 @@ export class VelocityBasedCharacter {
         res.animationGroups.find((animationGroud)=>animationGroud.name === 'running and jump')?.dispose(); 
         res.animationGroups.find((animationGroud)=>animationGroud.name === 'landing')?.dispose(); 
         res.animationGroups.find((animationGroud)=>animationGroud.name === 'baseball pitch')?.dispose(); 
+        res.animationGroups.find((animationGroud)=>animationGroud.name === 'sprinting roll')?.dispose(); 
     }
     
 
