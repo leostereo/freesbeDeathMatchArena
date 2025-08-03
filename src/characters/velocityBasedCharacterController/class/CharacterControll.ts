@@ -34,7 +34,7 @@ export class CharacterControll {
         this.AnimationContainer = animationContainer;
         this.AnimationManager = new AnimationManager(this.AnimationContainer);
         this.State = new State();
-        this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer,playerData)
+        this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer, playerData)
 
         this.createAggregateForCharacter(playerData)
         this.createDebugSphere();
@@ -134,8 +134,7 @@ export class CharacterControll {
         this.AnimationManager.updateAnimationFromVelocity(currentVelocity, this.inputDirection,
             this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
 
-        const desiredForce = this.State.getForceToApply(currentVelocity,downDistance);
-
+        const desiredForce = this.State.getForceToApply(currentVelocity, downDistance);
 
         this.displayMeshAggregate.body.applyForce(desiredForce, this.displayMesh.absolutePosition)
 
@@ -150,11 +149,20 @@ export class CharacterControll {
 
         if (this.State.state === CharacterState.ON_GROUND) {
 
+            const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, downDistance)
             if (!this.AnimationContainer.isAnyAnimationLatched()) {
-                const desiredVelocity = this.State.getVelocityToApply(currentVelocity, this.inputDirection, downDistance)
                 currentVelocity._x = desiredVelocity._x;
                 currentVelocity._z = desiredVelocity._z;
                 this.displayMeshAggregate.body.setLinearVelocity(currentVelocity)
+            }
+
+            if (this.State.wantsToToll) {
+                if(currentVelocity._x !== 0 || currentVelocity._z !==0){
+                    setTimeout(() => {
+                        this.displayMeshAggregate.body.applyImpulse(desiredForce, this.displayMesh.absolutePosition);
+                    }, 100)
+                } 
+                this.State.wantsToToll = false;
             }
         }
     }
@@ -183,7 +191,7 @@ export class CharacterControll {
                 this.State.wantsThrowFreesbe = Boolean(muliplier);
                 break;
             case playerData.roll:
-                this.State.wantsCrossPunch = Boolean(muliplier);
+                this.State.wantsToToll = Boolean(muliplier);
                 break;
             case playerData.jump:
                 if (this.State.state === CharacterState.IN_AIR) return;
@@ -196,7 +204,7 @@ export class CharacterControll {
 
 
         this.AnimationManager.updateAnimationFromKeyBoard(this.State.wantsThrowFreesbe,
-            this.State.wantsCrossPunch, this.State.wantJump,
+            this.State.wantsToToll, this.State.wantJump,
             this.AnimationContainer.getCurrentPlayingAnimation(),
             this.State.state
         )
@@ -207,17 +215,17 @@ export class CharacterControll {
 
         switch (kbInfo.event.key) {
             case '1':
-                console.log(this.State.state,this.displayMeshAggregate.body.getLinearVelocity()._y,this.AnimationContainer.getCurrentPlayingAnimation()?.name)
+                console.log(this.State.state, this.displayMeshAggregate.body.getLinearVelocity()._y, this.AnimationContainer.getCurrentPlayingAnimation()?.name)
                 break;
-                
-                case '2':
+
+            case '2':
                 console.log(this.AnimationContainer.getLatchedAnimation())
                 break;
-           
+
         }
 
         this.AnimationManager.updateAnimationFromKeyBoard(this.State.wantsThrowFreesbe,
-            this.State.wantsCrossPunch, this.State.wantJump,
+            this.State.wantsToToll, this.State.wantJump,
             this.AnimationContainer.getCurrentPlayingAnimation(),
             this.State.state
         )

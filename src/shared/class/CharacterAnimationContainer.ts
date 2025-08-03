@@ -239,6 +239,7 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
+        
         const sptrintingRollAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_sprinting roll`)
         if (sptrintingRollAnimation) {
             let animationItem: CharacterAnimationItem = {

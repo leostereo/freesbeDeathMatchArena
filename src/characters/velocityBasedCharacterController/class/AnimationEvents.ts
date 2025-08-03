@@ -27,6 +27,7 @@ export class AnimationEvents {
         this.bindCrashEvents();
         this.bindThrowFreesbeEvents();
         this.bindAirThrowFreesbeEvents();
+        this.bindSprintRollEvents()
     }
 
     updateCharacterInfo(characterOrientation: CharacterOrientationInfo) {
@@ -185,4 +186,18 @@ export class AnimationEvents {
 
     }
 
+    private bindSprintRollEvents() {
+
+        const sprintRollAnimation = this.animtionContainer.getAnimationByName(AnimationEnums.sprinting_roll);
+
+        const releaseLatch = new AnimationEvent(
+            72,
+            () => {
+                sprintRollAnimation.latched = false;
+            },
+            true,
+        );
+
+        sprintRollAnimation.animation.targetedAnimations[0].animation.addEvent(releaseLatch);
+    }
 }
