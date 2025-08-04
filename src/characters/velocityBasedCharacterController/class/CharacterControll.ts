@@ -170,7 +170,8 @@ export class CharacterControll {
     onKeyboard(kbInfo: KeyboardInfo, playerData: IPlayerData) {
         const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;
 
-        if (this.AnimationContainer.isAnyAnimationLatched() && muliplier === 1) {
+        if ( 
+            this.AnimationContainer.isAnyAnimationLatched() && muliplier === 1) {
             return;
         }
 
@@ -188,13 +189,15 @@ export class CharacterControll {
                 this.inputDirection.z = muliplier;
                 break;
             case playerData.throw:
+                if (this.State.state === CharacterState.FALLING_TO_CRASH) return;
                 this.State.wantsThrowFreesbe = Boolean(muliplier);
                 break;
             case playerData.roll:
+                if (this.State.state === CharacterState.FALLING_TO_CRASH) return;
                 this.State.wantsToToll = Boolean(muliplier);
                 break;
             case playerData.jump:
-                if (this.State.state === CharacterState.IN_AIR) return;
+                if (this.State.state === CharacterState.IN_AIR || this.State.state === CharacterState.FALLING_TO_CRASH) return;
                 this.State.wantJump = Boolean(muliplier);
                 break;
             case 'bt':

@@ -7,6 +7,9 @@ import { CharacterState } from "./State";
 export class AnimationManager {
 
     private AnimationContainer: CharacterAnimationContainer;
+    //CONFIG PARAMETERS
+    private FALLING_FLAT_VELOCITY = -60;
+    private FALLING_IDLE_VELOCITY = -15;
 
     constructor(animationContainer: CharacterAnimationContainer) {
 
@@ -39,8 +42,8 @@ export class AnimationManager {
         }
 
         if (sptrintingRoll &&
-            (state ===CharacterState.IN_AIR || 
-            (state === CharacterState.ON_GROUND && currentAnimation?.name !== AnimationEnums.idle))
+            (state === CharacterState.IN_AIR ||
+                (state === CharacterState.ON_GROUND && currentAnimation?.name !== AnimationEnums.idle))
         ) {
             const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.sprinting_roll);
             animation.latched = true;
@@ -72,22 +75,18 @@ export class AnimationManager {
             this.playControlledAnimation(animation);
             return;
         }
-        
-        // in the air
-        if (state === CharacterState.IN_AIR) {
 
-            if (velocityVector._y < -60) {
-                if (currentAnimation?.name === AnimationEnums.falling_flat) return;
-                this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_flat));
-                return;
-            }
+        //Falling to crash
+        if (state === CharacterState.FALLING_TO_CRASH) {
+            if (currentAnimation?.name === AnimationEnums.falling_flat) return;
+            this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_flat));
+            return;
+        }
 
-            if (velocityVector._y < -15 && currentAnimation?.name !== AnimationEnums.falling_idle) {
-                this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_idle));
-                return;
-            }
-
-            return
+        //Falling idle
+        if (state === CharacterState.IN_AIR && currentAnimation?.name !== AnimationEnums.falling_idle) {
+            this.playAnimationLoop(this.AnimationContainer.getAnimationByName(AnimationEnums.falling_idle));
+            return;
         }
 
         //Ground animations
@@ -124,13 +123,13 @@ export class AnimationManager {
                 if (currentAnimation?.name === AnimationEnums.idle
                     || currentAnimation?.name === AnimationEnums.falling_impact
                     || currentAnimation?.name === AnimationEnums.landing_from_jump) return;
-    
+
                 this.AnimationContainer.clearAllLatch();
-    
+
                 this.playAnimationLoop(
                     this.AnimationContainer.getAnimationByName(AnimationEnums.idle)
                 )
-    
+
                 return
             }
 
