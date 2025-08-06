@@ -43,8 +43,16 @@ Based on old good https://github.com/minibao/babylon-vite
 - [rotating particles](https://forum.babylonjs.com/t/emitter-rotation-particles/41819/3)
 - [throwing balls](https://playground.babylonjs.com/#8HZFUZ#230)
 
-TODO
-- remove delay from falling when in the air
-- remove delay from jump to idle
-- remove delay when running and jump
-- walk on slopes
+Version plan
+beta1.0 - basic movements.
+beta1.1 - player states
+beta1.2 - final scenario.
+beta1.3 - hud
+
+beta2.0 - state based animations.
+            - No more latch.
+            - simple animation.
+beta2.1 - action mask for keyboard interaction.
+beta2.1 - duck and throw
+beta2.2 - transitions.
+

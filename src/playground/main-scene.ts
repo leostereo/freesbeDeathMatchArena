@@ -47,8 +47,6 @@ export default class MainScene {
   }
 
   async loadComponents(): Promise<void> {
-    // Load your files in order
-    //new PhysicCharacter(this.scene);                          //experimental
     new Ground(this.scene);
     new VelocityBasedCharacter(this.scene,new Player1Data());   // linear velocity propelhed
     new VelocityBasedCharacter(this.scene,new Player2Data());   // linear velocity propelhed
