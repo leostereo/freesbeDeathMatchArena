@@ -1,4 +1,5 @@
 import { AnimationEnums, CharacterAnimationContainer } from "@/shared/class/CharacterAnimationContainer";
+import { EventContainer } from "@/shared/class/EventContainer";
 import { ParticlesEmiter } from "@/shared/class/ParticlesEmiter";
 import { IPlayerData } from "@/shared/class/PlayerData";
 import { CharacterOrientationInfo } from "@/shared/types/CharacterTypes";
@@ -16,7 +17,8 @@ export class AnimationEvents {
     private color:Color3;
     private material : StandardMaterial;
 
-    constructor(scene: Scene, animationContainer: CharacterAnimationContainer,playerData: IPlayerData) {
+    constructor(scene: Scene, animationContainer: CharacterAnimationContainer,
+        playerData: IPlayerData, eventContainer:EventContainer) {
         this.scene = scene;
         this.animtionContainer = animationContainer;
         this.color = playerData.color
@@ -25,7 +27,7 @@ export class AnimationEvents {
         this.bindJumpUpEvents();
         this.bindLandEvents();
         this.bindCrashEvents();
-        this.bindThrowFreesbeEvents();
+        this.bindThrowFreesbeEvents(eventContainer);
         this.bindAirThrowFreesbeEvents();
         this.bindSprintRollEvents()
     }
@@ -77,9 +79,20 @@ export class AnimationEvents {
         landAnimation.animation.targetedAnimations[0].animation.addEvent(releaseLatchEvent);
     }
 
-    private bindThrowFreesbeEvents() {
+    private bindThrowFreesbeEvents(eventContainer:EventContainer) {
 
         var bodyCollideCB = (collision: IPhysicsCollisionEvent) => {
+
+            if(collision.collidedAgainst.transformNode.name.includes('player')){
+                eventContainer.pushEvent({
+                    eventType:'freesbehit',
+                    eventData:{
+                        damage:1,
+                        shooter:collision.collider.transformNode.name,
+                        target:collision.collidedAgainst.transformNode.name,
+                    }
+                })
+            }
             new ParticlesEmiter(this.scene, { position: collision.point ?? Vector3.Zero(), pointingVector: Vector3.Zero() }, null, 'impact',this.color)
         }
 

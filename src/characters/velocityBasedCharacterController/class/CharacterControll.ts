@@ -4,6 +4,8 @@ import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
 import { IPlayerData } from "@/shared/class/PlayerData";
+import { EventContainer } from "@/shared/class/EventContainer";
+import { GameEvent } from "@/shared/types/CharacterTypes";
 
 
 export class CharacterControll {
@@ -28,16 +30,23 @@ export class CharacterControll {
 
     private currentPlugin: HavokPlugin;
 
-    constructor(scene: Scene, animationContainer: CharacterAnimationContainer, playerData: IPlayerData) {
+    constructor(scene: Scene, animationContainer: CharacterAnimationContainer,
+        playerData: IPlayerData, eventContainer: EventContainer) {
 
         this.scene = scene;
         this.AnimationContainer = animationContainer;
         this.AnimationManager = new AnimationManager(this.AnimationContainer);
         this.State = new State();
-        this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer, playerData)
+        this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer, playerData, eventContainer)
 
         this.createAggregateForCharacter(playerData)
         this.createDebugSphere();
+    }
+
+    public setGameEventState(gameEvent: GameEvent) {
+        if(gameEvent.eventType === 'freesbehit'){
+            this.State.state = CharacterState.WAS_SHOOT;
+        }
     }
 
     private createDebugSphere() {
@@ -50,7 +59,7 @@ export class CharacterControll {
 
     private createAggregateForCharacter(playerData: IPlayerData) {
 
-        this.displayMesh = MeshBuilder.CreateCapsule("CharacterDisplay",
+        this.displayMesh = MeshBuilder.CreateCapsule(playerData.name,
             { radius: 0.6, height: 3 },
             this.scene);
 
@@ -157,11 +166,11 @@ export class CharacterControll {
             }
 
             if (this.State.wantsToToll) {
-                if(currentVelocity._x !== 0 || currentVelocity._z !==0){
+                if (currentVelocity._x !== 0 || currentVelocity._z !== 0) {
                     setTimeout(() => {
                         this.displayMeshAggregate.body.applyImpulse(desiredForce, this.displayMesh.absolutePosition);
                     }, 100)
-                } 
+                }
                 this.State.wantsToToll = false;
             }
         }
@@ -170,7 +179,7 @@ export class CharacterControll {
     onKeyboard(kbInfo: KeyboardInfo, playerData: IPlayerData) {
         const muliplier = (kbInfo.type == KeyboardEventTypes.KEYDOWN) ? 1 : 0;
 
-        if ( 
+        if (
             this.AnimationContainer.isAnyAnimationLatched() && muliplier === 1) {
             return;
         }

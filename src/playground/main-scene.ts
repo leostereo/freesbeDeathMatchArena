@@ -12,15 +12,23 @@ import { Camera } from "@babylonjs/core";
 import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
 import { VelocityBasedCharacter } from "@/characters/velocityBasedCharacterController/VelocityBasedCharacter";
 import { Player1Data, Player2Data } from "@/shared/class/PlayerData";
+import { EventContainer } from "@/shared/class/EventContainer";
 
 export default class MainScene {
+
   private camera: ArcRotateCamera;
+  private eventContainer: EventContainer;
+  private player1: VelocityBasedCharacter;
+  private player2: VelocityBasedCharacter;
 
   constructor(private scene: Scene, private canvas: HTMLCanvasElement, private engine: Engine | WebGPUEngine) {
     this._setCamera(scene);
     this._setLight(scene);
     //  this._setEnvironment(scene);
+    this.eventContainer = new EventContainer();
     this.loadComponents();
+    this.scene.onBeforeRenderObservable.add(() => this.mainLoopTasks())
+
   }
 
   _setCamera(scene: Scene): void {
@@ -48,8 +56,22 @@ export default class MainScene {
 
   async loadComponents(): Promise<void> {
     new Ground(this.scene);
-    new VelocityBasedCharacter(this.scene,new Player1Data());   // linear velocity propelhed
-    new VelocityBasedCharacter(this.scene,new Player2Data());   // linear velocity propelhed
+    this.player1 = new VelocityBasedCharacter(this.scene, new Player1Data(), this.eventContainer);   // linear velocity propelhed
+    this.player2 = new VelocityBasedCharacter(this.scene, new Player2Data(), this.eventContainer);   // linear velocity propelhed
     //new EnemySpawnClass(this.scene);
+  }
+
+  mainLoopTasks() {
+    const lastEvent = this.eventContainer.getLastEvent();
+    if (lastEvent) {
+      if (lastEvent.eventType === 'freesbehit') {
+        if (lastEvent.eventData?.target === 'player1') {
+          this.player1.informGameEvent(lastEvent)
+        }
+        if (lastEvent.eventData?.target === 'player2') {
+          this.player2.informGameEvent(lastEvent)
+        }
+      }
+    }
   }
 }

@@ -45,7 +45,7 @@ Based on old good https://github.com/minibao/babylon-vite
 
 Version plan
 beta1.0 - basic movements.
-beta1.1 - player states
+beta1.1 - event container
 beta1.2 - final scenario.
 beta1.3 - hud
 

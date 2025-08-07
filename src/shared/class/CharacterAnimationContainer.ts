@@ -14,7 +14,9 @@ export enum AnimationEnums {
     cross_punch = "CROSS_PUNCH",
     landing_from_jump = "LANDING_FROM_JUMP",
     baseball_pitch = "BASEBALL_PITCH",
-    sprinting_roll = "SPRINTING_ROLL"
+    sprinting_roll = "SPRINTING_ROLL",
+    death_from_back_headshoot = "DEATH_FROM_BACK_HEADSHOOT",
+    head_hit = "HEAD_HIT"
 }
 
 
@@ -253,6 +255,42 @@ export class CharacterAnimationContainer {
                     mustLoop: false,
                     speedRatio: 2.4,
                     to: 72
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const deathFromBackHeadshootAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_death from back headshoot`)
+        if (deathFromBackHeadshootAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: deathFromBackHeadshootAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.death_from_back_headshoot,
+                control: {
+                    from: 10,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 2.4,
+                    to: 200
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const headHitAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_head hit`)
+        if (headHitAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: headHitAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.head_hit,
+                control: {
+                    from: 5,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.8,
+                    to: 60
                 }
             }
             this.characterAnimationVector.push(animationItem);

@@ -58,6 +58,13 @@ export class AnimationManager {
 
         if (currentAnimation?.latched) return;
 
+        if(state === CharacterState.WAS_SHOOT){
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.head_hit);
+            animation.latched = true;
+            this.playControlledAnimation(animation);
+            return;
+        }
+        
         //crash when falling.
         if (state === CharacterState.CLOSE_TO_CRASH &&
             currentAnimation?.name === AnimationEnums.falling_flat) {
