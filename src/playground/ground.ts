@@ -31,8 +31,7 @@ export class Ground {
     this.emissiveBlue.emissiveColor = Color3.Blue();
 
     this._createGround();
-    this._createElevator();
-    // this._generateRandomPlatforms();
+    this._createElevators();
     this.createWalls();
 
     this.platformClass = new PlatformClass(this.scene);
@@ -47,18 +46,13 @@ export class Ground {
     groundMaterial.emissiveColor = Color3.Black();
     mesh.material = groundMaterial;
 
-
-    //mesh.renderOutline = true;
-    //mesh.outlineColor = Color3.Blue();
-    //mesh.outlineWidth = 0.3;
     mesh.visibility = 0.3;
-
     const groundAgg = new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0 }, this.scene);
     groundAgg.shape.material = { friction: 1 }
 
   }
 
-  _createElevator(): void {
+  _createElevators(): void {
     const elevator1 = MeshBuilder.CreateCylinder('elevator1', { diameter: 5, height: 0.2 })
     elevator1.position = new Vector3(-27, 0, 37)
     elevator1.material = this.emissiveBlue;
@@ -125,27 +119,6 @@ export class Ground {
 
   }
 
-  async _generateRandomPlatforms() {
-    this.createPlatForm({ name: 'plat1', size: 40, height: 1, width: 10, pos_x: 0, pos_y: 0, pos_z: -35, ang_x: 0, ang_y: 0, ang_z: 0 })
-    this.createPlatForm({ name: 'plat2', size: 10, height: 1, width: 40, pos_x: -20, pos_y: 0, pos_z: -60, ang_x: 0, ang_y: 0, ang_z: 0 })
-    this.createPlatForm({ name: 'plat3', size: 40, height: 1, width: 10, pos_x: -35, pos_y: 0, pos_z: -35, ang_x: 15, ang_y: 0, ang_z: 0 })
-    this.createPlatForm({ name: 'plat4', size: 40, height: 1, width: 10, pos_x: -35, pos_y: 10, pos_z: 0, ang_x: 0, ang_y: 0, ang_z: 0 })
-    this.createPlatForm({ name: 'plat5', size: 10, height: 1, width: 20, pos_x: -20, pos_y: 5, pos_z: 10, ang_x: 0, ang_y: 0, ang_z: -10 })
-    this.createPlatForm({ name: 'plat6', size: 150, height: 1, width: 10, pos_x: 0, pos_y: 0, pos_z: 0, ang_x: -15, ang_y: 0, ang_z: 0 })
-  }
-
-  private createPlatForm(platData: PlatformData): void {
-    const path = MeshBuilder.CreateBox(
-      platData.name, { size: platData.size, height: platData.height, width: platData.width },
-      this.scene
-    );
-    path.position = new Vector3(platData.pos_x, platData.pos_y, platData.pos_z);
-    path.rotation = new Vector3(platData.ang_x, platData.ang_y, platData.ang_z);
-    this.addPhysicsAggregate(path);
-
-  }
-
-
   private addPhysicsAggregate(meshe: Mesh) {
     const res = new PhysicsAggregate(
       meshe,
@@ -182,6 +155,5 @@ export class Ground {
     right_wall.visibility = 0.3;
 
   }
-
 
 }
