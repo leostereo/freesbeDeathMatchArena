@@ -27,7 +27,7 @@ export class State {
     private onGroundRunSpeed = this.onGroundWalkSpeed * 5 / 3;
     private opossiteOnGroundSpeed = 2 * this.onGroundWalkSpeed;
     private opossiteOnGroundRunSpeed = 2 * this.onGroundRunSpeed;
-    private jumpForceImpulse = new Vector3(0, 3000, 0);
+    private jumpForceImpulse = new Vector3(0, 2800, 0);
     private rollForceImpulseScale = 80;
 
 

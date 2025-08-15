@@ -1,5 +1,5 @@
 import { CharacterAnimationContainer } from "@/shared/class/CharacterAnimationContainer";
-import { Color3, HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, Scene, ShapeCastResult, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Color3, HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, Scene, ShapeCastResult, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
@@ -40,7 +40,6 @@ export class CharacterControll {
         this.AnimationEvents = new AnimationEvents(this.scene, this.AnimationContainer, playerData, eventContainer)
 
         this.createAggregateForCharacter(playerData)
-        this.createDebugSphere();
     }
 
     public setGameEventState(gameEvent: GameEvent) {
@@ -49,13 +48,7 @@ export class CharacterControll {
         }
     }
 
-    private createDebugSphere() {
-        // debug red sphere that will be placed where the shape cast detects the casting collision point
-        this.sphereHitWorld = MeshBuilder.CreateSphere("s", { diameter: 0.15 });
-        const sphereHitWorldMaterial = new StandardMaterial("sm");
-        sphereHitWorldMaterial.diffuseColor = new Color3(1, 0, 0);
-        this.sphereHitWorld.material = sphereHitWorldMaterial;
-    }
+
 
     private createAggregateForCharacter(playerData: IPlayerData) {
 
@@ -225,6 +218,7 @@ export class CharacterControll {
 
     onDebugKeyboard(kbInfo: KeyboardInfo) {
 
+        const camera = this.scene.getCameraByName('camera') as ArcRotateCamera;
         switch (kbInfo.event.key) {
             case '1':
                 console.log(this.State.state, this.displayMeshAggregate.body.getLinearVelocity()._y, this.AnimationContainer.getCurrentPlayingAnimation()?.name)
@@ -232,6 +226,32 @@ export class CharacterControll {
 
             case '2':
                 console.log(this.AnimationContainer.getLatchedAnimation())
+                break;
+
+            case '3':
+                camera.alpha = Math.PI/2
+                camera.beta = Math.PI/2
+                camera.radius = 10;
+                break;
+            case '4':
+                camera.alpha = -Math.PI/2
+                camera.beta =  Math.PI/2
+                camera.radius = 10;
+                break;
+            case '5':
+                camera.alpha = 0
+                camera.beta =  Math.PI/2
+                camera.radius = 30;
+                break;
+                case '6':
+                    camera.alpha = 0
+                camera.beta =  0
+                camera.radius = 150;
+                break;
+            case '7':
+                camera.alpha = 0
+                camera.beta =  Math.PI/3
+                camera.radius = 70;
                 break;
 
         }

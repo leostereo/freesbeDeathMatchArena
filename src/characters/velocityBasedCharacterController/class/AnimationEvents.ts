@@ -23,7 +23,7 @@ export class AnimationEvents {
         this.animtionContainer = animationContainer;
         this.color = playerData.color
         this.material = new StandardMaterial("freesbe_material", this.scene);
-        this.material.diffuseColor = this.color;
+        this.material.emissiveColor = this.color;
         this.bindJumpUpEvents();
         this.bindLandEvents();
         this.bindCrashEvents();

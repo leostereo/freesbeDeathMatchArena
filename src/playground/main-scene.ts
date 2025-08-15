@@ -8,7 +8,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
 import { Ground } from "./ground";
 import { Character } from "../characters/BBjsProposedCharacter/Character"
-import { Camera } from "@babylonjs/core";
+import { Camera, GlowLayer } from "@babylonjs/core";
 import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
 import { VelocityBasedCharacter } from "@/characters/velocityBasedCharacterController/VelocityBasedCharacter";
 import { Player1Data, Player2Data } from "@/shared/class/PlayerData";
@@ -24,7 +24,7 @@ export default class MainScene {
   constructor(private scene: Scene, private canvas: HTMLCanvasElement, private engine: Engine | WebGPUEngine) {
     this._setCamera(scene);
     this._setLight(scene);
-    //  this._setEnvironment(scene);
+    this.turnGlow();
     this.eventContainer = new EventContainer();
     this.loadComponents();
     this.scene.onBeforeRenderObservable.add(() => this.mainLoopTasks())
@@ -33,7 +33,7 @@ export default class MainScene {
 
   _setCamera(scene: Scene): void {
     // Creates, angles, distances and targets the camera
-    var camera = new ArcRotateCamera("camera", 0, Math.PI / 3, 40, new Vector3(0, 0, 0), scene);
+    var camera = new ArcRotateCamera("camera", 0, Math.PI / 3, 70, new Vector3(0, 0, 0), scene);
 
     // This positions the camera
     //camera.setPosition(new Vector3(0, 0, -10));
@@ -42,6 +42,11 @@ export default class MainScene {
   _setLight(scene: Scene): void {
     const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
     light.intensity = 0.5;
+  }
+
+  turnGlow(){
+    const gl = new GlowLayer("glow", this.scene);
+    gl.intensity = 0.5;
   }
 
   _setEnvironment(scene: Scene) {
