@@ -16,7 +16,9 @@ export enum AnimationEnums {
     baseball_pitch = "BASEBALL_PITCH",
     sprinting_roll = "SPRINTING_ROLL",
     death_from_back_headshoot = "DEATH_FROM_BACK_HEADSHOOT",
-    head_hit = "HEAD_HIT"
+    head_hit = "HEAD_HIT",
+    dying = 'DYING',
+    has_won = 'HAS_WON'
 }
 
 
@@ -296,8 +298,41 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        // this.CROSS_PUNCH = scene.getAnimationGroupByName('cross punch');
+        const dyingAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_dying`)
+        if (dyingAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: dyingAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.dying,
+                control: {
+                    from: 1,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.8,
+                    to: 158
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
 
+        const victoryAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_victory`)
+        if (victoryAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: victoryAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.has_won,
+                control: {
+                    from: 1,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.8,
+                    to: 272
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
     }
 
     public getCurrentPlayingAnimation() {

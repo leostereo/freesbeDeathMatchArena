@@ -11,7 +11,9 @@ export enum CharacterState {
     CLOSE_TO_LAND = 'CLOSE_TO_LAND',
     FALLING_TO_CRASH = 'FALLING_TO_CRASH',
     CLOSE_TO_CRASH = 'CLOSE_TO_CRASH',
-    WAS_SHOOT = 'WAS_SHOOT'
+    WAS_SHOOT = 'WAS_SHOOT',
+    IS_DYING = 'IS_DYING',
+    HAS_WON = 'HAS_WON'
 }
 
 export class State {

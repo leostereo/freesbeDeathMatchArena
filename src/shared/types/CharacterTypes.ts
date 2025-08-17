@@ -5,7 +5,7 @@ export type CharacterOrientationInfo = {
     pointingVector: Vector3;
 }
 
-export type EventType = 'freesbehit' | 'itemPickUp'
+export type EventType = 'freesbehit' | 'itemPickUp' | 'hasWon' | 'hasLoosed'
 
 export type FreesbeHitEvent = {
     target:string;

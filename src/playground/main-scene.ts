@@ -13,6 +13,7 @@ import { EnemySpawnClass } from "./enemies/EnemySpawnClass";
 import { VelocityBasedCharacter } from "@/characters/velocityBasedCharacterController/VelocityBasedCharacter";
 import { Player1Data, Player2Data } from "@/shared/class/PlayerData";
 import { EventContainer } from "@/shared/class/EventContainer";
+import { Hud } from "./hud";
 
 export default class MainScene {
 
@@ -20,6 +21,10 @@ export default class MainScene {
   private eventContainer: EventContainer;
   private player1: VelocityBasedCharacter;
   private player2: VelocityBasedCharacter;
+  private hud : Hud;
+
+  private player1Health = 'xxxxx';
+  private player2Health = 'xxxxx';
 
   constructor(private scene: Scene, private canvas: HTMLCanvasElement, private engine: Engine | WebGPUEngine) {
     this._setCamera(scene);
@@ -27,6 +32,10 @@ export default class MainScene {
     this.turnGlow();
     this.eventContainer = new EventContainer();
     this.loadComponents();
+    this.hud = new Hud();
+    this.hud.updatePlayer1Hud(this.player1Health)
+    this.hud.updatePlayer2Hud(this.player2Health)
+
     this.scene.onBeforeRenderObservable.add(() => this.mainLoopTasks())
 
   }
@@ -72,9 +81,21 @@ export default class MainScene {
       if (lastEvent.eventType === 'freesbehit') {
         if (lastEvent.eventData?.target === 'player1') {
           this.player1.informGameEvent(lastEvent)
+          this.player1Health = this.player1Health.slice(0,-1);
+          this.hud.updatePlayer1Hud(this.player1Health);
+          if(this.player1Health === ''){
+            this.player1.informGameEvent({eventType:"hasLoosed",eventData:null})
+            this.player2.informGameEvent({eventType:"hasWon",eventData:null})
+          }
         }
         if (lastEvent.eventData?.target === 'player2') {
           this.player2.informGameEvent(lastEvent)
+          this.player2Health = this.player2Health.slice(0,-1);
+          this.hud.updatePlayer2Hud(this.player2Health);
+          if(this.player2Health === ''){
+            this.player2.informGameEvent({eventType:"hasLoosed",eventData:null})
+            this.player1.informGameEvent({eventType:"hasWon",eventData:null})
+          }
         }
       }
     }

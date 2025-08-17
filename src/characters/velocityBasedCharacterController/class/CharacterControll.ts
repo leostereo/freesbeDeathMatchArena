@@ -1,5 +1,5 @@
 import { CharacterAnimationContainer } from "@/shared/class/CharacterAnimationContainer";
-import { ArcRotateCamera, Color3, HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, Scene, ShapeCastResult, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Color3, HavokPlugin, IPhysicsCollisionEvent, KeyboardEventTypes, KeyboardInfo, Mesh, MeshBuilder, Observer, PhysicsAggregate, PhysicsEventType, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, Scene, ShapeCastResult, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { CharacterState, State } from "./State";
 import { AnimationManager } from "./AnimationManager";
 import { AnimationEvents } from "./AnimationEvents";
@@ -30,6 +30,9 @@ export class CharacterControll {
 
     private currentPlugin: HavokPlugin;
 
+    private physicObserver:Observer<Scene>;
+    private renderObserver:Observer<Scene>;
+
     constructor(scene: Scene, animationContainer: CharacterAnimationContainer,
         playerData: IPlayerData, eventContainer: EventContainer) {
 
@@ -43,12 +46,22 @@ export class CharacterControll {
     }
 
     public setGameEventState(gameEvent: GameEvent) {
-        if(gameEvent.eventType === 'freesbehit'){
+        if (gameEvent.eventType === 'freesbehit') {
             this.State.state = CharacterState.WAS_SHOOT;
         }
+
+        if (gameEvent.eventType === 'hasLoosed') {
+            this.State.state = CharacterState.IS_DYING;
+            this.scene.onAfterPhysicsObservable.remove(this.physicObserver)
+            this.scene.onBeforeRenderObservable.remove(this.renderObserver)
+                    this.AnimationManager.updateAnimationFromVelocity(Vector3.Zero(), this.inputDirection,
+            this.AnimationContainer.getCurrentPlayingAnimation(), this.State.state)
+        }
+
+        if (gameEvent.eventType === 'hasWon') {
+            this.State.state = CharacterState.HAS_WON;
+        }
     }
-
-
 
     private createAggregateForCharacter(playerData: IPlayerData) {
 
@@ -79,8 +92,8 @@ export class CharacterControll {
     }
 
     bindEvents(playerData: IPlayerData) {
-        this.scene.onBeforeRenderObservable.add(() => this.onBeforeRender())
-        this.scene.onAfterPhysicsObservable.add(() => this.onAfterPhysics())
+        this.renderObserver = this.scene.onBeforeRenderObservable.add(() => this.onBeforeRender())
+        this.physicObserver = this.scene.onAfterPhysicsObservable.add(() => this.onAfterPhysics())
         this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => this.onKeyboard(kbInfo, playerData))
         this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => this.onDebugKeyboard(kbInfo))
     }
@@ -123,7 +136,7 @@ export class CharacterControll {
     }
 
     onAfterPhysics() {
-
+        
         const rayOrigin = this.displayMesh.position.clone();
         rayOrigin.y -= 1.5; // Slightly above the character to ensure it's not inside the mesh
         const rayDirection = Vector3.Down();
@@ -229,28 +242,28 @@ export class CharacterControll {
                 break;
 
             case '3':
-                camera.alpha = Math.PI/2
-                camera.beta = Math.PI/2
+                camera.alpha = Math.PI / 2
+                camera.beta = Math.PI / 2
                 camera.radius = 10;
                 break;
             case '4':
-                camera.alpha = -Math.PI/2
-                camera.beta =  Math.PI/2
+                camera.alpha = -Math.PI / 2
+                camera.beta = Math.PI / 2
                 camera.radius = 10;
                 break;
             case '5':
                 camera.alpha = 0
-                camera.beta =  Math.PI/2
+                camera.beta = Math.PI / 2
                 camera.radius = 30;
                 break;
-                case '6':
-                    camera.alpha = 0
-                camera.beta =  0
+            case '6':
+                camera.alpha = 0
+                camera.beta = 0
                 camera.radius = 150;
                 break;
             case '7':
                 camera.alpha = 0
-                camera.beta =  Math.PI/3
+                camera.beta = Math.PI / 3
                 camera.radius = 70;
                 break;
 

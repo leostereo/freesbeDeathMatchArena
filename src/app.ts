@@ -126,7 +126,7 @@ class App {
 
   _renderer(): void {
     this.engine.runRenderLoop(() => {
-      this._fps();
+      //this._fps();
       this.scene.render();
     });
   }

@@ -56,15 +56,29 @@ export class AnimationManager {
     public updateAnimationFromVelocity(velocityVector: Vector3, inputDirection: Vector3,
         currentAnimation: CharacterAnimationItem | undefined, state: CharacterState): void {
 
+        if (state === CharacterState.IS_DYING) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.dying);
+            animation.latched = true;
+            this.playControlledAnimation(animation);
+            return;
+        }
+
+        if (state === CharacterState.HAS_WON) {
+            const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.has_won);
+            animation.latched = true;
+            this.playAnimationLoop(animation);
+            return;
+        }
+
         if (currentAnimation?.latched) return;
 
-        if(state === CharacterState.WAS_SHOOT){
+        if (state === CharacterState.WAS_SHOOT) {
             const animation = this.AnimationContainer.getAnimationByName(AnimationEnums.head_hit);
             animation.latched = true;
             this.playControlledAnimation(animation);
             return;
         }
-        
+
         //crash when falling.
         if (state === CharacterState.CLOSE_TO_CRASH &&
             currentAnimation?.name === AnimationEnums.falling_flat) {

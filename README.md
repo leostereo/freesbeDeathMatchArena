@@ -48,8 +48,11 @@ beta1.0 - basic movements.
 beta1.1 - event container
 beta1.2 - final scenario.
 beta1.3 - hud
-beta1.4 - No magic numbers
 
+
+
+beta2.0 - No magic numbers
+beta2.0 - asset manager.
 beta2.0 - state based animations.
             - No more latch.
             - simple animation.

@@ -20,7 +20,7 @@ export class VelocityBasedCharacter {
 
     async create_character(playerData: IPlayerData, eventContainer: EventContainer) {
 
-        const res = await LoadAssetContainerAsync("./model/ybotV4.glb",
+        const res = await LoadAssetContainerAsync("./model/ybotV5.glb",
             this.scene, { pluginOptions: { gltf: { animationStartMode: 0 } } })
         const root = res.meshes[0]
         root.scaling.scaleInPlace(2)
@@ -65,6 +65,7 @@ export class VelocityBasedCharacter {
         res.animationGroups.find((animationGroud) => animationGroud.name === 'sprinting roll')?.dispose();
         res.animationGroups.find((animationGroud) => animationGroud.name === 'death from back headshoot')?.dispose();
         res.animationGroups.find((animationGroud) => animationGroud.name === 'head hit')?.dispose();
+        res.animationGroups.find((animationGroud) => animationGroud.name === 'dying')?.dispose();
     }
 
     public informGameEvent(gameEvent: GameEvent) {
