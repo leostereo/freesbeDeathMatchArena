@@ -14,30 +14,31 @@ import { VelocityBasedCharacter } from "@/characters/velocityBasedCharacterContr
 import { Player1Data, Player2Data } from "@/shared/class/PlayerData";
 import { EventContainer } from "@/shared/class/EventContainer";
 import { Hud } from "./hud";
+import * as GUI from '@babylonjs/gui'
 
 export default class MainScene {
 
-  private camera: ArcRotateCamera;
   private eventContainer: EventContainer;
   private player1: VelocityBasedCharacter;
   private player2: VelocityBasedCharacter;
   private hud : Hud;
 
-  private player1Health = 'xxxxx';
-  private player2Health = 'xxxxx';
+  private advancedDynamicTexture :GUI.AdvancedDynamicTexture
+  
+  private player1Health = '';
+  private player2Health = '';
+
 
   constructor(private scene: Scene, private canvas: HTMLCanvasElement, private engine: Engine | WebGPUEngine) {
     this._setCamera(scene);
     this._setLight(scene);
     this.turnGlow();
     this.eventContainer = new EventContainer();
-    this.loadComponents();
-    this.hud = new Hud();
-    this.hud.updatePlayer1Hud(this.player1Health)
-    this.hud.updatePlayer2Hud(this.player2Health)
-
+    this.advancedDynamicTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI('UI');
+    this.hud = new Hud(this.advancedDynamicTexture);
     this.scene.onBeforeRenderObservable.add(() => this.mainLoopTasks())
-
+    
+    this.init_game();
   }
 
   _setCamera(scene: Scene): void {
@@ -68,11 +69,36 @@ export default class MainScene {
     pipeline.samples = 4;
   }
 
+  init_game(){
+    this.player1Health = 'xxxxxx';
+    this.player2Health = 'xxxxxx';
+    this.loadComponents();
+    this.hud.updatePlayer1Hud(this.player1Health)
+    this.hud.updatePlayer2Hud(this.player2Health)
+  }
+
   async loadComponents(): Promise<void> {
     new Ground(this.scene);
     this.player1 = new VelocityBasedCharacter(this.scene, new Player1Data(), this.eventContainer);   // linear velocity propelhed
     this.player2 = new VelocityBasedCharacter(this.scene, new Player2Data(), this.eventContainer);   // linear velocity propelhed
-    //new EnemySpawnClass(this.scene);
+  }
+
+  displayRestartMessage(){
+    const restartButton = GUI.Button.CreateSimpleButton("but1", "restart");
+    restartButton.width = "150px"
+    restartButton.height = "40px";
+    restartButton.top = "-250px"
+    restartButton.color = "white";
+    restartButton.cornerRadius = 20;
+    restartButton.background = "blue";
+
+    restartButton.onPointerUpObservable.add(()=>{
+      window.location.reload();
+    });
+
+    setTimeout(()=>{
+      this.advancedDynamicTexture.addControl(restartButton);
+    },3000)
   }
 
   mainLoopTasks() {
@@ -86,6 +112,7 @@ export default class MainScene {
           if(this.player1Health === ''){
             this.player1.informGameEvent({eventType:"hasLoosed",eventData:null})
             this.player2.informGameEvent({eventType:"hasWon",eventData:null})
+            this.displayRestartMessage();
           }
         }
         if (lastEvent.eventData?.target === 'player2') {
@@ -95,6 +122,7 @@ export default class MainScene {
           if(this.player2Health === ''){
             this.player2.informGameEvent({eventType:"hasLoosed",eventData:null})
             this.player1.informGameEvent({eventType:"hasWon",eventData:null})
+            this.displayRestartMessage();
           }
         }
       }

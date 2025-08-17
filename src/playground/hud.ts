@@ -2,11 +2,12 @@ import * as GUI from '@babylonjs/gui'
 
 export class Hud {
 
-    private advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+    private advancedTexture: GUI.AdvancedDynamicTexture;
     player1HudMessage = new GUI.TextBlock();
     player2HudMessage = new GUI.TextBlock();
 
-    constructor() {
+    constructor(advancedTexture:GUI.AdvancedDynamicTexture) {
+        this.advancedTexture = advancedTexture;
         this.player1HudMessage.text = ''
         this.player1HudMessage.color = "red";
         this.player1HudMessage.fontSize = 24;
