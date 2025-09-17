@@ -11,7 +11,7 @@ export default ({ mode }: any) => {
   const root = process.cwd();
   const env = loadEnv(mode, root);
   return defineConfig({
-    envPrefix: ['VITE_','GAME'],
+    envPrefix: ['VITE_','GAME_'],
 
     //base: 'freesbeDeathMatchArena',
     base: env.VITE_PUBLIC_PATH,

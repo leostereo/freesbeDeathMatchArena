@@ -40,7 +40,7 @@ export class VelocityBasedCharacter {
 
         res.addAllToScene()
 
-        const animationContainer = new CharacterAnimationContainer(cloneAnimationGroupArray, playerData.name, this.scene)
+        const animationContainer = new CharacterAnimationContainer( playerData.name, this.scene,cloneAnimationGroupArray)
         this.characterControll = new CharacterControll(this.scene, animationContainer, playerData, eventContainer);
 
         root.parent = this.characterControll.displayMesh;

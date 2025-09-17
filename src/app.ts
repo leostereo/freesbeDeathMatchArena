@@ -127,7 +127,7 @@ class App {
   _renderer(): void {
     this.engine.runRenderLoop(() => {
       //this._fps();
-      this.scene.render();
+      //this.scene.render(); // render will be controlled on AssetsClass.
     });
   }
 }

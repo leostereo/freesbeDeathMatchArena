@@ -3,6 +3,7 @@ import { AnimationGroup, Scene } from "@babylonjs/core";
 export enum AnimationEnums {
     idle = "IDLE",
     walk = "WALK",
+    walking_backwards = "WALKING_BACKWARDS",
     run = "RUN",
     run_fast = "RUN_FAST",
     jump = "JUMP",
@@ -45,16 +46,21 @@ export class CharacterAnimationContainer {
     private scene: Scene;
     private prefix: string;
 
-    constructor(animationGroup: AnimationGroup[], prefix: string, scene: Scene) {
-        this.characterAnimationGroup = animationGroup;
-        this.prefix = prefix;
+    constructor(prefix: string | undefined, scene: Scene, animationGroup?: AnimationGroup[]) {
+        if (animationGroup) {
+            this.characterAnimationGroup = animationGroup;
+        }
+
+        if(!prefix){
+            this.prefix = '';
+        }
         this.scene = scene;
         this.characterAnimationVectorInit();
     }
 
     private characterAnimationVectorInit() {
 
-        const idleAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_idle`)
+        const idleAnimation = this.scene.getAnimationGroupByName(`${this.prefix}idle`)
         if (idleAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: idleAnimation,
@@ -65,7 +71,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const walkAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_walking`)
+        const walkAnimation = this.scene.getAnimationGroupByName(`${this.prefix}walking`)
         if (walkAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: walkAnimation,
@@ -76,7 +82,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const runAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_slow running`)
+        const runAnimation = this.scene.getAnimationGroupByName(`${this.prefix}slow running`)
         if (runAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: runAnimation,
@@ -87,7 +93,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const runFastAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_fast running`)
+        const runFastAnimation = this.scene.getAnimationGroupByName(`${this.prefix}fast running`)
         if (runFastAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: runFastAnimation,
@@ -98,7 +104,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const freesbeAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_fresbe throw`)
+        const freesbeAnimation = this.scene.getAnimationGroupByName(`${this.prefix}fresbe throw`)
         if (freesbeAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: freesbeAnimation,
@@ -116,7 +122,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const fallingIdleAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_falling idle`)
+        const fallingIdleAnimation = this.scene.getAnimationGroupByName(`${this.prefix}falling idle`)
         if (fallingIdleAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingIdleAnimation,
@@ -127,7 +133,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const fallingFlatAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_falling impact`)
+        const fallingFlatAnimation = this.scene.getAnimationGroupByName(`${this.prefix}falling impact`)
         if (fallingFlatAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingFlatAnimation,
@@ -137,7 +143,7 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-        const fallingFlatImpactAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_falling flat impact`)
+        const fallingFlatImpactAnimation = this.scene.getAnimationGroupByName(`${this.prefix}falling flat impact`)
         if (fallingFlatImpactAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: fallingFlatImpactAnimation,
@@ -155,7 +161,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const crossPunchAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_cross punch`)
+        const crossPunchAnimation = this.scene.getAnimationGroupByName(`${this.prefix}cross punch`)
         if (crossPunchAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: crossPunchAnimation,
@@ -172,7 +178,7 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-        const jumpUpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_jump up`)
+        const jumpUpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}jump up`)
         if (jumpUpAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: jumpUpAnimation,
@@ -190,7 +196,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const jumpAndRunAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_running and jump`)
+        const jumpAndRunAnimation = this.scene.getAnimationGroupByName(`${this.prefix}running and jump`)
         if (jumpAndRunAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: jumpAndRunAnimation,
@@ -208,7 +214,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const landingFromJumpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_landing`)
+        const landingFromJumpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}landing`)
         if (landingFromJumpAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: landingFromJumpAnimation,
@@ -226,7 +232,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const baseBallPitchJumpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_baseball pitch`)
+        const baseBallPitchJumpAnimation = this.scene.getAnimationGroupByName(`${this.prefix}baseball pitch`)
         if (baseBallPitchJumpAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: baseBallPitchJumpAnimation,
@@ -243,8 +249,8 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-        
-        const sptrintingRollAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_sprinting roll`)
+
+        const sptrintingRollAnimation = this.scene.getAnimationGroupByName(`${this.prefix}sprinting roll`)
         if (sptrintingRollAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: sptrintingRollAnimation,
@@ -262,7 +268,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const deathFromBackHeadshootAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_death from back headshoot`)
+        const deathFromBackHeadshootAnimation = this.scene.getAnimationGroupByName(`${this.prefix}death from back headshoot`)
         if (deathFromBackHeadshootAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: deathFromBackHeadshootAnimation,
@@ -280,7 +286,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const headHitAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_head hit`)
+        const headHitAnimation = this.scene.getAnimationGroupByName(`${this.prefix}head hit`)
         if (headHitAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: headHitAnimation,
@@ -298,7 +304,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const dyingAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_dying`)
+        const dyingAnimation = this.scene.getAnimationGroupByName(`${this.prefix}dying`)
         if (dyingAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: dyingAnimation,
@@ -316,7 +322,7 @@ export class CharacterAnimationContainer {
             this.characterAnimationVector.push(animationItem);
         }
 
-        const victoryAnimation = this.scene.getAnimationGroupByName(`${this.prefix}_victory`)
+        const victoryAnimation = this.scene.getAnimationGroupByName(`${this.prefix}victory`)
         if (victoryAnimation) {
             let animationItem: CharacterAnimationItem = {
                 animation: victoryAnimation,
@@ -330,6 +336,17 @@ export class CharacterAnimationContainer {
                     speedRatio: 1.8,
                     to: 272
                 }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+        
+        const walkingBackwardsAnimation = this.scene.getAnimationGroupByName(`${this.prefix}walking backwards`)
+        if (walkingBackwardsAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: walkingBackwardsAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.walking_backwards
             }
             this.characterAnimationVector.push(animationItem);
         }
@@ -352,8 +369,8 @@ export class CharacterAnimationContainer {
         return this.characterAnimationVector.find((animation) => animation.latched) ?? null;
     }
 
-    public clearAllLatch():void{
-        const latchedAnimation = this.characterAnimationVector.filter((animation)=>animation.latched);
+    public clearAllLatch(): void {
+        const latchedAnimation = this.characterAnimationVector.filter((animation) => animation.latched);
         latchedAnimation.forEach(animation => {
             animation.latched = false;
         });

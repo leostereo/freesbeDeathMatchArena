@@ -45,8 +45,9 @@ export class Ground {
     const groundMaterial = new StandardMaterial('groundMaterial', this.scene);
     groundMaterial.emissiveColor = Color3.Black();
     mesh.material = groundMaterial;
-
     mesh.visibility = 0.3;
+    mesh.checkCollisions = true;
+
     const groundAgg = new PhysicsAggregate(mesh, PhysicsShapeType.BOX, { mass: 0 }, this.scene);
     groundAgg.shape.material = { friction: 1 }
 
@@ -132,14 +133,17 @@ export class Ground {
 
   private createWalls() {
     const back_wall = MeshBuilder.CreateBox('backWall', { depth: 80, width: 1, height: 20 })
+    back_wall.checkCollisions = true;
+
+
     back_wall.position = new Vector3(-30, 10, 0)
     const left_wall = MeshBuilder.CreateBox('backWall', { depth: 1, width: 60, height: 20 })
     left_wall.position = new Vector3(0, 10, -40)
     const right_wall = MeshBuilder.CreateBox('backWall', { depth: 1, width: 60, height: 20 })
     right_wall.position = new Vector3(0, 10, 40)
-    this.addPhysicsAggregate(back_wall);
-    this.addPhysicsAggregate(left_wall);
-    this.addPhysicsAggregate(right_wall);
+    // this.addPhysicsAggregate(back_wall);
+    // this.addPhysicsAggregate(left_wall);
+    // this.addPhysicsAggregate(right_wall);
 
     back_wall.renderOutline = true;
     back_wall.outlineColor = Color3.Blue();
