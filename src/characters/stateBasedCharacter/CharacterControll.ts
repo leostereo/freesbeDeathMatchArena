@@ -27,7 +27,7 @@ export class CharacterControll {
 
     //Character capsule
     public displayMesh: AbstractMesh;
-    private freesbeManager:FreesbeManager;
+    private freesbeManager: FreesbeManager;
 
     private V3_ZERO = Vector3.Zero();
     private ray = new Ray(Vector3.Zero().clone(), Vector3.Down(), 10);
@@ -44,7 +44,7 @@ export class CharacterControll {
         this.characterState = CharacterState.IDLE;
         this.animationManager = new AnimationManager(this.scene);
         this.createDisplayMeshForCharacter(playerData);
-        this.freesbeManager = new FreesbeManager(this.scene,playerData);
+        this.freesbeManager = new FreesbeManager(this.scene, playerData);
 
         this.bindObservables(playerData);
 
@@ -104,7 +104,6 @@ export class CharacterControll {
             this.displayMesh.rotate(Vector3.Up(), this.CHARACTER_ROTATION_SPEED);
         }
 
-
         if (this.characterIntention === CharacterIntention.WANTS_TO_JUMP) {
             this.setJumpImpulse()
         }
@@ -139,7 +138,7 @@ export class CharacterControll {
         //release throw freesbe
         if (this.characterState === CharacterState.THROWING_FREESBE_GROUND) {
 
-            if(this.animationManager.throwFreesbe){
+            if (this.animationManager.throwFreesbe) {
                 this.freesbeManager.thowFreesbe(this.displayMesh);
                 this.animationManager.throwFreesbe = false;
             }
@@ -198,14 +197,14 @@ export class CharacterControll {
             }
         }
 
-        if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING) 
+        if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING)
             && (this.inputDirection._x === 1) && downDistance === 0) {
             this.characterState = CharacterState.WALKING_BACKWARDS;
             return;
         }
 
         if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.WALKING_BACKWARDS)
-             && (this.inputDirection._x === -1) && downDistance === 0) {
+            && (this.inputDirection._x === -1) && downDistance === 0) {
             this.characterState = CharacterState.RUNNING;
             return;
         }

@@ -2,5 +2,5 @@ export enum EventFrameEnum  {
 
 THROW_FREESBE_PARTICLES = 80, 
 THROW_FREESBE_SHOOT = 85, 
-
+JUMPING_IMPULSE_IS_OVER = 25
 }

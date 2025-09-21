@@ -54,7 +54,7 @@ export class AnimationManager {
             new AnimationEvent(EventFrameEnum.THROW_FREESBE_SHOOT, () => this.throwFreesbe = true, true));
 
         this.jump_animation.animation.targetedAnimations[0].animation.addEvent(
-            new AnimationEvent(this.jump_animation.control?.to!, () => this.jumpingImpulseIsOver = true, true));
+            new AnimationEvent(EventFrameEnum.JUMPING_IMPULSE_IS_OVER, () => this.jumpingImpulseIsOver = true, true));
 
     }
 
