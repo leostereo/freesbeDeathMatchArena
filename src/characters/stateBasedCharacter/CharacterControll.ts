@@ -8,18 +8,19 @@ import { AnimationManager } from "./AnimationManager";
 import { ThinSSRRenderingPipeline } from "@babylonjs/core/PostProcesses/RenderPipeline/Pipelines/thinSSRRenderingPipeline";
 import { AnimationEnums } from "@/shared/class/CharacterAnimationContainer";
 import { FreesbeManager } from "./FreesbeManager";
+import { GroundTypeEnum } from "@/shared/enums/GroundType";
 
 
 export class CharacterControll {
 
-    private CHARACTER_MASS: number = 50;
-    private CHARACTER_MATERIAL_FRICTION: number = 0.15;
-    private CHARACTER_NORMAL_RUN_SPEED: number = 45;
+
     private CHARACTER_ROTATION_SPEED: number = 0.1;
     private CHARACTER_FORWARD_SPEED: number = 0.3;
     private CHARACTER_BACKWARDS_SPEED: number = 0.1;
 
-    private inputDirection: Vector3 = Vector3.Zero();
+    private V3_ZERO = Vector3.Zero();
+
+    private inputDirection: Vector3 = this.V3_ZERO.clone();
 
     private characterState: CharacterState;
     private characterIntention: CharacterIntention;
@@ -28,13 +29,24 @@ export class CharacterControll {
     //Character capsule
     public displayMesh: AbstractMesh;
     private freesbeManager: FreesbeManager;
+    private distanceToGround:number = 0;
 
-    private V3_ZERO = Vector3.Zero();
+    //Character physics parameters
+    private EPSILON = 1e-10;
+    private FRICTION = 0.15;
+    private GRAVITY = new Vector3(0, -0.0049, 0);
+    private MOVE_SPEED = 0.005;
+    private MOVE_SPEED_BACK = 0.002;
+    private JUMP_FORCE = 350;
+    private GROUND_STICKING_FACTOR = 25;
+    private MAX_GROUND_SLOPE = Math.PI * 0.25;
+
+    private currentGroundType = GroundTypeEnum.ON_SHALLOW;
+    private moveVelocity = this.V3_ZERO.clone();
+    private gravityVelocity = this.V3_ZERO.clone();
+
     private ray = new Ray(Vector3.Zero().clone(), Vector3.Down(), 10);
     private rayViewer = new RayHelper(this.ray);
-    private GRAVITY = new Vector3(0, -0.0049, 0);
-    private gravityVelocity = Vector3.Zero().clone();
-    private GROUND_STICKING_FACTOR = 25;
 
     constructor(private scene: Scene,
         private playerMeshAssetTask: MeshAssetTask,
@@ -44,6 +56,7 @@ export class CharacterControll {
         this.characterState = CharacterState.IDLE;
         this.animationManager = new AnimationManager(this.scene);
         this.createDisplayMeshForCharacter(playerData);
+
         this.freesbeManager = new FreesbeManager(this.scene, playerData);
 
         this.bindObservables(playerData);
@@ -55,22 +68,23 @@ export class CharacterControll {
     private createDisplayMeshForCharacter(playerData: IPlayerData) {
 
         this.displayMesh = MeshBuilder.CreateCapsule(playerData.name,
-            { radius: 0.6, height: 3 },
+            { radius: 0.6, height: 2 },
             this.scene);
         this.displayMesh.checkCollisions = true;
         this.displayMesh.isVisible = false;
         this.displayMesh.rotate(new Vector3(0, 1, 0), -Math.PI / 2, Space.WORLD)
 
         this.displayMesh.position._x = playerData.initPosition._x;
-        this.displayMesh.position._y = 1.5;                         //at level 0
+        this.displayMesh.position._y = 1;                         //at level 0
         this.displayMesh.position._z = playerData.initPosition._z;
 
         const playerMesh = this.playerMeshAssetTask.loadedMeshes[0];
-        playerMesh.scaling.scaleInPlace(2)
-        playerMesh.position._y = -1.5;              //at level 0
+        playerMesh.scaling.scaleInPlace(1.4)
+        playerMesh.position._y = -1;              //at level 0
         playerMesh.parent = this.displayMesh;
 
     }
+
 
     public informGameEvent(gameEvent: GameEvent) {
         console.log(gameEvent);
@@ -84,17 +98,10 @@ export class CharacterControll {
         this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => this.onKeyboard(kbInfo, playerData))
     }
 
-    setRayInformation() {
-
-    }
-
     onBeforeRender() {
-
+        
         const DELTA_TIME = this.scene.getEngine().getDeltaTime();
-
-        if (this.inputDirection._x === 1) {
-            this.displayMesh.moveWithCollisions(this.displayMesh.forward.scaleInPlace(-this.CHARACTER_BACKWARDS_SPEED));
-        }
+        this.setNextState();
 
         if (this.inputDirection.z === -1) {
             this.displayMesh.rotate(Vector3.Up(), -this.CHARACTER_ROTATION_SPEED);
@@ -104,36 +111,115 @@ export class CharacterControll {
             this.displayMesh.rotate(Vector3.Up(), this.CHARACTER_ROTATION_SPEED);
         }
 
-        if (this.characterIntention === CharacterIntention.WANTS_TO_JUMP) {
-            this.setJumpImpulse()
+        //Physic main loop.
+
+        // Key input moves the character (only if on shallow ground)
+        if (this.currentGroundType === GroundTypeEnum.ON_SHALLOW) {
+            // Convert key input to a movement change vector
+            var moveAdjust = this.V3_ZERO.clone();
+            if (this.inputDirection.x === -1) {
+                moveAdjust.addInPlace(this.displayMesh.forward)
+            }
+            
+            if (this.inputDirection._x === 1) {
+                moveAdjust.subtractInPlace(this.displayMesh.forward)
+            }
+
+            if (this.characterIntention === CharacterIntention.WANTS_TO_JUMP) {
+                this.gravityVelocity = this.GRAVITY.scale(this.JUMP_FORCE * -1);
+            }
+            // moveVelocity adjusted by the movement change vector
+            if (moveAdjust.lengthSquared() != 0) {
+                if(this.inputDirection.x === -1){
+                    moveAdjust.normalize().scaleInPlace(this.MOVE_SPEED * DELTA_TIME);
+                }
+
+                if(this.inputDirection.x === 1){
+                    moveAdjust.normalize().scaleInPlace(this.MOVE_SPEED_BACK * DELTA_TIME);
+                }
+                this.moveVelocity.addInPlace(moveAdjust);
+            }
         }
 
-        this.setNextState();
-        this.applyDisplacementVector(DELTA_TIME);
+
+        // Friction (if ON any ground, shallow OR steep, but not OVER it)
+        if (this.currentGroundType === GroundTypeEnum.ON_SHALLOW ||
+            this.currentGroundType === GroundTypeEnum.ON_STEEP) {
+            this.moveVelocity.copyFrom(
+                Vector3.Lerp(this.moveVelocity, this.V3_ZERO, this.FRICTION));
+        }
+
+        //this.moveVelocity.addInPlace(this.displayMesh.forward.scaleInPlace(this.MOVE_SPEED));
+        this.displayMesh.moveWithCollisions(this.moveVelocity);
+        this.displayMesh.computeWorldMatrix(true);
+
+        //chech surface angle
+        this.ray.origin.copyFrom(this.displayMesh.position);
+
+        const pick = this.scene.pickWithRay(this.ray, o => o.checkCollisions && o != this.displayMesh);
+
+        if (pick && pick.hit) {
+            this.distanceToGround = pick.distance;
+            var normal = pick.getNormal(true);
+            var groundAngle =
+                Math.acos(Vector3.Dot(normal!, Vector3.Up()));
+            if (groundAngle < this.MAX_GROUND_SLOPE) {
+                this.currentGroundType = GroundTypeEnum.OVER_SHALLOW;
+            } else {
+                this.currentGroundType = GroundTypeEnum.OVER_STEEP;
+            }
+        } else {
+            // If we don't detect ground, default to "over steep"
+            this.currentGroundType = GroundTypeEnum.OVER_STEEP;
+        }
+
+        // Gravity velocity increases every frame
+        this.gravityVelocity.addInPlace(this.GRAVITY.scale(DELTA_TIME));
+
+        // Calculate the destination to be expected if no collision occurs
+        var uncollidedTargetPosition = this.displayMesh.position.add(this.gravityVelocity);
+
+        // Move character by gravity velocity
+        if (this.currentGroundType == GroundTypeEnum.OVER_SHALLOW) {
+            // No sliding over shallow ground
+            this.displayMesh.moveWithCollisions(this.gravityVelocity);
+        } else {
+            // Sliding over steep ground
+            this.displayMesh.moveWithCollisions(this.gravityVelocity);
+        }
+
+        const collisionOccurred = !this.displayMesh.position.equalsWithEpsilon(uncollidedTargetPosition, this.EPSILON);
+
+        if (collisionOccurred) {
+            if (this.currentGroundType == GroundTypeEnum.OVER_SHALLOW) {
+                this.currentGroundType = GroundTypeEnum.ON_SHALLOW;
+                // Keep gravity velocity at a "sticking" force, while on shallow
+                // ground
+                this.gravityVelocity.copyFrom(this.GRAVITY.scale(this.GROUND_STICKING_FACTOR));
+
+            } else {
+                this.currentGroundType = GroundTypeEnum.ON_STEEP;
+            }
+        }
+
         this.animationManager.updateAnimation(this.characterState);
 
     }
 
-    getDistanceToGround(): number | undefined {
-
-        const rayOrigin = this.displayMesh.position.clone();
-        rayOrigin.y -= 1.5; // Slightly above the character to ensure it's not inside the mesh
-        this.ray.origin = rayOrigin;
-        const pickInfo = this.scene.pickWithRay(this.ray);
-        return pickInfo?.distance;
-    }
 
     setNextState() {
 
-        const downDistance = this.getDistanceToGround();
+        const STANDING_ON_GROUND_DISTANCE = 1.02;
+        //Ray meassures 1.01 when standing on ground.
+        //Not sure where it comes yet.
+        //That value was taken from logs.
+        
+        const downDistance = this.distanceToGround;
         if (downDistance === undefined) {
             return
         }
 
         // state resolver
-
-
-
 
         //release throw freesbe
         if (this.characterState === CharacterState.THROWING_FREESBE_GROUND) {
@@ -157,7 +243,7 @@ export class CharacterControll {
 
         //detect throw freesbe
         if (this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING) {
-            if (downDistance === 0 && this.characterIntention === CharacterIntention.WANTS_TO_THROW_FREESBE) {
+            if (downDistance < STANDING_ON_GROUND_DISTANCE && this.characterIntention === CharacterIntention.WANTS_TO_THROW_FREESBE) {
                 this.characterState = CharacterState.THROWING_FREESBE_GROUND;
                 return;
             }
@@ -191,69 +277,30 @@ export class CharacterControll {
         }
 
         if (this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING) {
-            if (downDistance === 0 && this.characterIntention === CharacterIntention.WANTS_TO_JUMP) {
+            if (downDistance < STANDING_ON_GROUND_DISTANCE && this.characterIntention === CharacterIntention.WANTS_TO_JUMP) {
                 this.characterState = CharacterState.START_JUMP;
                 return;
             }
         }
 
         if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING)
-            && (this.inputDirection._x === 1) && downDistance === 0) {
+            && (this.inputDirection._x === 1) && downDistance < STANDING_ON_GROUND_DISTANCE) {
             this.characterState = CharacterState.WALKING_BACKWARDS;
             return;
         }
-
+        
         if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.WALKING_BACKWARDS)
-            && (this.inputDirection._x === -1) && downDistance === 0) {
+            && (this.inputDirection._x === -1) && downDistance < STANDING_ON_GROUND_DISTANCE) {
             this.characterState = CharacterState.RUNNING;
             return;
         }
 
-        if (this.inputDirection._x === 0 && this.inputDirection._z === 0 && downDistance === 0) {
+        if (this.inputDirection._x === 0 && this.inputDirection._z === 0 && downDistance < STANDING_ON_GROUND_DISTANCE) {
             this.characterState = CharacterState.IDLE;
         }
 
     }
 
-    applyDisplacementVector(dt: number) {
-
-        const moveAdjust = this.V3_ZERO.clone();
-
-        if (this.inputDirection._x === -1) {
-            moveAdjust.addInPlace(this.displayMesh.forward.scaleInPlace(this.getHorizontalVelocity()));
-        }
-
-        if (this.characterState === CharacterState.JUMPING) {
-            moveAdjust.addInPlace(this.gravityVelocity.addInPlace(this.GRAVITY.scale(dt)));
-        }
-
-        if (this.characterState === CharacterState.CLOSE_TO_LAND) {
-            this.displayMesh.position._y = 1.5;
-        }
-
-        this.displayMesh.moveWithCollisions(moveAdjust);
-    }
-
-    setJumpImpulse() {
-        if (this.characterState === CharacterState.START_JUMP) {
-            this.gravityVelocity = this.GRAVITY.scale(-250)
-        }
-    }
-
-    getHorizontalVelocity(): number {
-
-        let horizontalVelocity = 0;
-        if (this.characterState === CharacterState.RUNNING ||
-            this.characterState === CharacterState.IDLE
-        ) {
-            horizontalVelocity = this.CHARACTER_FORWARD_SPEED;
-        }
-
-        if (this.characterState === CharacterState.JUMPING) {
-            horizontalVelocity = this.CHARACTER_FORWARD_SPEED;
-        }
-        return horizontalVelocity;
-    }
 
     onKeyboard(kbInfo: KeyboardInfo, playerData: IPlayerData) {
 

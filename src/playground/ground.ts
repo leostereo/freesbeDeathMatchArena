@@ -31,11 +31,11 @@ export class Ground {
     this.emissiveBlue.emissiveColor = Color3.Blue();
 
     this._createGround();
-    this._createElevators();
+    //this._createElevators();
     this.createWalls();
 
     this.platformClass = new PlatformClass(this.scene);
-    this.platformClass.buildPlatforms();
+    //this.platformClass.buildPlatforms();
 
   }
 
@@ -157,6 +157,11 @@ export class Ground {
     right_wall.outlineColor = Color3.Blue();
     right_wall.outlineWidth = 0.3;
     right_wall.visibility = 0.3;
+
+
+    const box = MeshBuilder.CreateBox('box',{size:10});
+    box.position = new Vector3(5,0,-10);
+    box.checkCollisions = true
 
   }
 
