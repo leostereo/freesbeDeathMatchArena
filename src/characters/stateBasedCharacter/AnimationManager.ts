@@ -11,7 +11,7 @@ export class AnimationManager {
     private idle_animation: CharacterAnimationItem;
     private running_animation: CharacterAnimationItem;
     private jump_animation: CharacterAnimationItem;
-    private close_to_land_animation: CharacterAnimationItem;
+    private landing_from_jump_animation: CharacterAnimationItem;
     private throw_freesbe_animation: CharacterAnimationItem;
     private walking_back_animation: CharacterAnimationItem;
 
@@ -30,7 +30,7 @@ export class AnimationManager {
         this.idle_animation = this.animationContainer.getAnimationByName(AnimationEnums.idle);
         this.running_animation = this.animationContainer.getAnimationByName(AnimationEnums.run);
         this.jump_animation = this.animationContainer.getAnimationByName(AnimationEnums.jump);
-        this.close_to_land_animation = this.animationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
+        this.landing_from_jump_animation = this.animationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
         this.throw_freesbe_animation = this.animationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
         this.walking_back_animation = this.animationContainer.getAnimationByName(AnimationEnums.walking_backwards)
 
@@ -41,8 +41,8 @@ export class AnimationManager {
     }
 
     private bindNotificationEvents = () => {
-        this.close_to_land_animation.animation.targetedAnimations[0].animation.addEvent(
-            new AnimationEvent(this.close_to_land_animation.control?.to!, this.informFinishedAnimation, true));
+        this.landing_from_jump_animation.animation.targetedAnimations[0].animation.addEvent(
+            new AnimationEvent(this.landing_from_jump_animation.control?.to!, this.informFinishedAnimation, true));
 
         this.throw_freesbe_animation.animation.targetedAnimations[0].animation.addEvent(
             new AnimationEvent(this.throw_freesbe_animation.control?.to!, this.informFinishedAnimation, true));
@@ -70,8 +70,8 @@ export class AnimationManager {
             this.playControlledAnimation(this.throw_freesbe_animation);
         }
 
-        if (state === CharacterState.CLOSE_TO_LAND && currenAnimation?.name !== this.close_to_land_animation.name) {
-            this.playControlledAnimation(this.close_to_land_animation);
+        if (state === CharacterState.CLOSE_TO_LAND && currenAnimation?.name !== this.landing_from_jump_animation.name) {
+            this.playControlledAnimation(this.landing_from_jump_animation);
         }
 
         if (state === CharacterState.START_JUMP) {

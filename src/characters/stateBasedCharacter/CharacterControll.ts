@@ -9,6 +9,7 @@ import { ThinSSRRenderingPipeline } from "@babylonjs/core/PostProcesses/RenderPi
 import { AnimationEnums } from "@/shared/class/CharacterAnimationContainer";
 import { FreesbeManager } from "./FreesbeManager";
 import { GroundTypeEnum } from "@/shared/enums/GroundType";
+import { TextureLineComponent } from "@babylonjs/inspector/components/actionTabs/lines/textureLineComponent";
 
 
 export class CharacterControll {
@@ -98,6 +99,15 @@ export class CharacterControll {
         this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => this.onKeyboard(kbInfo, playerData))
     }
 
+    private shoudMoveHorizontally():boolean{
+        if( this.characterState === CharacterState.CLOSE_TO_LAND ||
+            this.characterState === CharacterState.THROWING_FREESBE_GROUND
+        ){
+            return false;
+        }
+        return true;
+    }
+
     onBeforeRender() {
         
         const DELTA_TIME = this.scene.getEngine().getDeltaTime();
@@ -115,6 +125,7 @@ export class CharacterControll {
 
         // Key input moves the character (only if on shallow ground)
         if (this.currentGroundType === GroundTypeEnum.ON_SHALLOW) {
+
             // Convert key input to a movement change vector
             var moveAdjust = this.V3_ZERO.clone();
             if (this.inputDirection.x === -1) {
@@ -149,8 +160,8 @@ export class CharacterControll {
                 Vector3.Lerp(this.moveVelocity, this.V3_ZERO, this.FRICTION));
         }
 
-        //this.moveVelocity.addInPlace(this.displayMesh.forward.scaleInPlace(this.MOVE_SPEED));
-        this.displayMesh.moveWithCollisions(this.moveVelocity);
+     
+        this.shoudMoveHorizontally() && this.displayMesh.moveWithCollisions(this.moveVelocity);
         this.displayMesh.computeWorldMatrix(true);
 
         //chech surface angle
@@ -266,7 +277,7 @@ export class CharacterControll {
 
         //detect close to land
         if ((this.characterState === CharacterState.JUMPING || this.characterState === CharacterState.FALLING) &&
-            downDistance < 1 && this.gravityVelocity._y < 0) {
+            downDistance < 1.5 * STANDING_ON_GROUND_DISTANCE && this.gravityVelocity._y < 0) {
             this.characterState = CharacterState.CLOSE_TO_LAND;
             return;
         }
