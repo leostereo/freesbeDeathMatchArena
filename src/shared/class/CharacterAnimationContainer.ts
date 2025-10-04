@@ -186,11 +186,11 @@ export class CharacterAnimationContainer {
                 currentlyPlay: false,
                 name: AnimationEnums.jump,
                 control: {
-                    from: 1,
+                    from: 15,
                     isAdditive: false,
                     mustLoop: false,
                     speedRatio: 1.8,
-                    to: 52
+                    to: 45
                 }
             }
             this.characterAnimationVector.push(animationItem);
@@ -222,11 +222,11 @@ export class CharacterAnimationContainer {
                 currentlyPlay: false,
                 name: AnimationEnums.landing_from_jump,
                 control: {
-                    from: 25,
+                    from: 38,
                     isAdditive: false,
                     mustLoop: false,
                     speedRatio: 2.2,
-                    to: 100
+                    to: 70
                 }
             }
             this.characterAnimationVector.push(animationItem);

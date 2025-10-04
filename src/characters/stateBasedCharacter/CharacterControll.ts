@@ -14,17 +14,13 @@ import { TextureLineComponent } from "@babylonjs/inspector/components/actionTabs
 
 export class CharacterControll {
 
-
-    private CHARACTER_ROTATION_SPEED: number = 0.1;
-    private CHARACTER_FORWARD_SPEED: number = 0.3;
-    private CHARACTER_BACKWARDS_SPEED: number = 0.1;
-
     private V3_ZERO = Vector3.Zero();
 
+    private CHARACTER_ROTATION_SPEED: number = 0.1;
     private inputDirection: Vector3 = this.V3_ZERO.clone();
-
     private characterState: CharacterState;
     private characterIntention: CharacterIntention;
+
     private animationManager: AnimationManager;
 
     //Character capsule
@@ -109,7 +105,9 @@ export class CharacterControll {
     }
 
     onBeforeRender() {
-        
+        if(this.displayMesh.position.y < -10){
+            this.displayMesh.position = new Vector3(0,10,10);
+        }
         const DELTA_TIME = this.scene.getEngine().getDeltaTime();
         this.setNextState();
 
@@ -136,7 +134,7 @@ export class CharacterControll {
                 moveAdjust.subtractInPlace(this.displayMesh.forward)
             }
 
-            if (this.characterIntention === CharacterIntention.WANTS_TO_JUMP) {
+            if (this.characterState === CharacterState.JUMPING) {
                 this.gravityVelocity = this.GRAVITY.scale(this.JUMP_FORCE * -1);
             }
             // moveVelocity adjusted by the movement change vector
@@ -152,14 +150,12 @@ export class CharacterControll {
             }
         }
 
-
         // Friction (if ON any ground, shallow OR steep, but not OVER it)
         if (this.currentGroundType === GroundTypeEnum.ON_SHALLOW ||
             this.currentGroundType === GroundTypeEnum.ON_STEEP) {
             this.moveVelocity.copyFrom(
                 Vector3.Lerp(this.moveVelocity, this.V3_ZERO, this.FRICTION));
         }
-
      
         this.shoudMoveHorizontally() && this.displayMesh.moveWithCollisions(this.moveVelocity);
         this.displayMesh.computeWorldMatrix(true);
@@ -190,14 +186,14 @@ export class CharacterControll {
         // Calculate the destination to be expected if no collision occurs
         var uncollidedTargetPosition = this.displayMesh.position.add(this.gravityVelocity);
 
-        // Move character by gravity velocity
-        if (this.currentGroundType == GroundTypeEnum.OVER_SHALLOW) {
-            // No sliding over shallow ground
-            this.displayMesh.moveWithCollisions(this.gravityVelocity);
-        } else {
-            // Sliding over steep ground
-            this.displayMesh.moveWithCollisions(this.gravityVelocity);
-        }
+            // Move character by gravity velocity
+            if (this.currentGroundType == GroundTypeEnum.OVER_SHALLOW) {
+                // No sliding over shallow ground
+                this.displayMesh.moveWithCollisions(this.gravityVelocity);
+            } else {
+                // Sliding over steep ground
+                this.displayMesh.moveWithCollisions(this.gravityVelocity);
+            }
 
         const collisionOccurred = !this.displayMesh.position.equalsWithEpsilon(uncollidedTargetPosition, this.EPSILON);
 
@@ -274,16 +270,23 @@ export class CharacterControll {
             return;
         }
 
+        if(this.characterState === CharacterState.IDLE){
+            console.log(' idle')
+        }
+        if(this.characterState === CharacterState.JUMPING){
+            console.log(' jumping', downDistance, this.gravityVelocity._y)
+        }
 
         //detect close to land
         if ((this.characterState === CharacterState.JUMPING || this.characterState === CharacterState.FALLING) &&
-            downDistance < 1.5 * STANDING_ON_GROUND_DISTANCE && this.gravityVelocity._y < 0) {
+            downDistance < 5 && this.gravityVelocity._y < 0) {
             this.characterState = CharacterState.CLOSE_TO_LAND;
             return;
         }
 
-        if (this.characterState === CharacterState.START_JUMP) {
+        if(this.characterState === CharacterState.START_JUMP && this.animationManager.jumpingImpulseIsOver){
             this.characterState = CharacterState.JUMPING;
+            this.animationManager.jumpingImpulseIsOver = false;
             return;
         }
 
@@ -293,7 +296,9 @@ export class CharacterControll {
                 return;
             }
         }
+        //#endregion
 
+        //#region Horizontal move
         if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING)
             && (this.inputDirection._x === 1) && downDistance < STANDING_ON_GROUND_DISTANCE) {
             this.characterState = CharacterState.WALKING_BACKWARDS;
@@ -306,10 +311,13 @@ export class CharacterControll {
             return;
         }
 
-        if (this.inputDirection._x === 0 && this.inputDirection._z === 0 && downDistance < STANDING_ON_GROUND_DISTANCE) {
+        if (this.inputDirection._x === 0 && this.inputDirection._z === 0 && downDistance < STANDING_ON_GROUND_DISTANCE
+            && this.characterState !== CharacterState.START_JUMP && this.characterState !== CharacterState.JUMPING
+        ) {
             this.characterState = CharacterState.IDLE;
         }
 
+        //#endregion
     }
 
 

@@ -63,7 +63,6 @@ export class AnimationManager {
     }
 
     public updateAnimation(state: CharacterState) {
-
         const currenAnimation = this.animationContainer.getCurrentPlayingAnimation();
 
         if (state === CharacterState.THROWING_FREESBE_GROUND && currenAnimation?.name !== this.throw_freesbe_animation.name) {
@@ -74,7 +73,9 @@ export class AnimationManager {
             this.playControlledAnimation(this.landing_from_jump_animation);
         }
 
-        if (state === CharacterState.START_JUMP) {
+        //jump
+        if (state === CharacterState.START_JUMP && currenAnimation?.name !== this.jump_animation.name) {
+            this.currentAnimation = this.jump_animation;
             this.playControlledAnimation(this.jump_animation);
             return;
         }
@@ -103,9 +104,8 @@ export class AnimationManager {
     }
 
     private playControlledAnimation(animationItem: CharacterAnimationItem) {
-        this.animationContainer.getCurrentPlayingAnimation()?.animation.stop();
+        this.currentAnimation = animationItem;
         if (animationItem?.control) {
-            this.currentAnimation = animationItem;
             this.lastAnimationFinishes = false;
             animationItem.animation.start(
                 animationItem.control.mustLoop,
