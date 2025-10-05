@@ -103,6 +103,9 @@ export class CharacterControll {
             case CharacterState.THROWING_FREESBE_GROUND:
                 return 0.5
                 break;
+            case CharacterState.JUMPING:
+                return 1.05
+                break;
             case CharacterState.ROLLING:
                 if(this.distanceToGround > 1.02){
                     return 1;
