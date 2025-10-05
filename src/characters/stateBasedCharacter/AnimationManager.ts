@@ -13,6 +13,7 @@ export class AnimationManager {
     private jump_animation: CharacterAnimationItem;
     private landing_from_jump_animation: CharacterAnimationItem;
     private throw_freesbe_animation: CharacterAnimationItem;
+    private throw_freesbe_in_air_animation: CharacterAnimationItem;
     private walking_back_animation: CharacterAnimationItem;
     private in_air_animation: CharacterAnimationItem;
 
@@ -33,6 +34,7 @@ export class AnimationManager {
         this.jump_animation = this.animationContainer.getAnimationByName(AnimationEnums.jump);
         this.landing_from_jump_animation = this.animationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
         this.throw_freesbe_animation = this.animationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
+        this.throw_freesbe_in_air_animation = this.animationContainer.getAnimationByName(AnimationEnums.baseball_pitch);
         this.walking_back_animation = this.animationContainer.getAnimationByName(AnimationEnums.walking_backwards)
         this.in_air_animation = this.animationContainer.getAnimationByName(AnimationEnums.falling_idle);
 
@@ -61,6 +63,12 @@ export class AnimationManager {
                 this.playInloopAnimation(this.in_air_animation);
             }, true));
 
+        this.throw_freesbe_in_air_animation.animation.targetedAnimations[0].animation.addEvent(
+            new AnimationEvent(this.throw_freesbe_in_air_animation.control?.to!, this.informFinishedAnimation, true));
+
+        this.throw_freesbe_in_air_animation.animation.targetedAnimations[0].animation.addEvent(
+            new AnimationEvent(EventFrameEnum.THROW_FREESBE_IN_AIR_SHOOT, () => this.throwFreesbe = true, true));
+
     }
 
     private informFinishedAnimation = () => {
@@ -70,6 +78,11 @@ export class AnimationManager {
 
     public updateAnimation(state: CharacterState) {
         const currenAnimation = this.animationContainer.getCurrentPlayingAnimation();
+
+
+        if (state === CharacterState.THROWING_FREESBE_IN_AIR && currenAnimation?.name !== this.throw_freesbe_in_air_animation.name) {
+            this.playControlledAnimation(this.throw_freesbe_in_air_animation);
+        }
 
         if (state === CharacterState.THROWING_FREESBE_GROUND && currenAnimation?.name !== this.throw_freesbe_animation.name) {
             this.playControlledAnimation(this.throw_freesbe_animation);

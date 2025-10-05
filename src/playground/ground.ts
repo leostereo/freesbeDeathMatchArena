@@ -159,9 +159,22 @@ export class Ground {
     right_wall.visibility = 0.3;
 
 
+    //degub objects
+    
     const box = MeshBuilder.CreateBox('box',{size:10});
     box.position = new Vector3(5,0,-10);
     box.checkCollisions = true
+
+    const boxAgg = new PhysicsAggregate(box,
+       PhysicsShapeType.BOX,
+      { mass: 0, friction: 0.9 },
+      this.scene
+    );
+
+    const box2 = MeshBuilder.CreateBox('box2',{height:1,depth:60,width:20});
+    box2.position = new Vector3(-10,0,-20);
+    box2.rotation = new Vector3(-Math.PI/20,0,0);
+    box2.checkCollisions = true
 
   }
 
