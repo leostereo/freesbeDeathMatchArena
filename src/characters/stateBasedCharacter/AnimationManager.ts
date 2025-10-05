@@ -14,6 +14,7 @@ export class AnimationManager {
     private landing_from_jump_animation: CharacterAnimationItem;
     private throw_freesbe_animation: CharacterAnimationItem;
     private walking_back_animation: CharacterAnimationItem;
+    private in_air_animation: CharacterAnimationItem;
 
     private currentAnimation: CharacterAnimationItem | null;
     //events particular frames
@@ -33,6 +34,7 @@ export class AnimationManager {
         this.landing_from_jump_animation = this.animationContainer.getAnimationByName(AnimationEnums.landing_from_jump);
         this.throw_freesbe_animation = this.animationContainer.getAnimationByName(AnimationEnums.throw_freesbe);
         this.walking_back_animation = this.animationContainer.getAnimationByName(AnimationEnums.walking_backwards)
+        this.in_air_animation = this.animationContainer.getAnimationByName(AnimationEnums.falling_idle);
 
         this.bindNotificationEvents();
 
@@ -54,13 +56,17 @@ export class AnimationManager {
             new AnimationEvent(EventFrameEnum.THROW_FREESBE_SHOOT, () => this.throwFreesbe = true, true));
 
         this.jump_animation.animation.targetedAnimations[0].animation.addEvent(
-            new AnimationEvent(EventFrameEnum.JUMPING_IMPULSE_IS_OVER, () => this.jumpingImpulseIsOver = true, true));
+            new AnimationEvent(EventFrameEnum.JUMPING_IMPULSE_IS_OVER, () => {
+                this.jumpingImpulseIsOver = true;
+                this.playInloopAnimation(this.in_air_animation);
+            }, true));
 
     }
 
     private informFinishedAnimation = () => {
         this.lastAnimationFinishes = true;
     }
+
 
     public updateAnimation(state: CharacterState) {
         const currenAnimation = this.animationContainer.getCurrentPlayingAnimation();

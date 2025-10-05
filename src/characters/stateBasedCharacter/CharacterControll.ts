@@ -84,7 +84,7 @@ export class CharacterControll {
 
 
     public informGameEvent(gameEvent: GameEvent) {
-        console.log(gameEvent);
+        //console.lxg(gameEvent);
     }
 
 
@@ -219,7 +219,7 @@ export class CharacterControll {
         const STANDING_ON_GROUND_DISTANCE = 1.02;
         //Ray meassures 1.01 when standing on ground.
         //Not sure where it comes yet.
-        //That value was taken from logs.
+        //That value was taken from lxgs.
         
         const downDistance = this.distanceToGround;
         if (downDistance === undefined) {
@@ -268,13 +268,6 @@ export class CharacterControll {
                 }
             }
             return;
-        }
-
-        if(this.characterState === CharacterState.IDLE){
-            console.log(' idle')
-        }
-        if(this.characterState === CharacterState.JUMPING){
-            console.log(' jumping', downDistance, this.gravityVelocity._y)
         }
 
         //detect close to land
