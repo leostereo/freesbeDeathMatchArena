@@ -103,8 +103,10 @@ export class CharacterControll {
             case CharacterState.THROWING_FREESBE_GROUND:
                 return 0.5
                 break;
-
             case CharacterState.ROLLING:
+                if(this.distanceToGround > 1.02){
+                    return 1;
+                }
                 return 1.1
                 break;
 
@@ -115,12 +117,14 @@ export class CharacterControll {
     }
 
     onBeforeRender() {
+
         if (this.displayMesh.position.y < -10) {
             this.displayMesh.position = new Vector3(0, 10, 10);
         }
+
         const DELTA_TIME = this.scene.getEngine().getDeltaTime();
         this.setNextState();
-        
+
         if (this.inputDirection.z === -1) {
             this.displayMesh.rotate(Vector3.Up(), -this.CHARACTER_ROTATION_SPEED);
         }
@@ -225,7 +229,7 @@ export class CharacterControll {
     }
 
 
-    setNextState() {
+    private setNextState() {
 
         const STANDING_ON_GROUND_DISTANCE = 1.02;
         const CLOSE_TO_LAND_DISTANCE = 5;
@@ -244,7 +248,7 @@ export class CharacterControll {
         if (this.characterState === CharacterState.ROLLING) {
 
             if (this.animationManager.lastAnimationFinishes) {
-            
+
                 if (downDistance < CLOSE_TO_LAND_DISTANCE && this.gravityVelocity._y < 0) {
                     this.characterState = CharacterState.CLOSE_TO_LAND
                 }
@@ -356,7 +360,6 @@ export class CharacterControll {
                 return;
             }
         }
-        //#endregion
 
         //#region Horizontal move
         if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING)
@@ -376,7 +379,6 @@ export class CharacterControll {
         ) {
             this.characterState = CharacterState.IDLE;
         }
-
         //#endregion
     }
 
