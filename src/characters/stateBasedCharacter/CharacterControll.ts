@@ -43,7 +43,7 @@ export class CharacterControll {
     private gravityVelocity = this.V3_ZERO.clone();
 
     private ray = new Ray(Vector3.Zero().clone(), Vector3.Down(), 10);
-    private rayViewer = new RayHelper(this.ray);
+    //private rayViewer = new RayHelper(this.ray);
 
     constructor(private scene: Scene,
         private playerMeshAssetTask: MeshAssetTask,
@@ -58,7 +58,7 @@ export class CharacterControll {
 
         this.bindObservables(playerData);
 
-        this.rayViewer.show(scene, new Color3(0, 1, 0));
+        //this.rayViewer.show(scene, new Color3(0, 1, 0));
     }
 
 
@@ -94,13 +94,24 @@ export class CharacterControll {
         this.scene.onKeyboardObservable.add((kbInfo: KeyboardInfo) => this.onKeyboard(kbInfo, playerData))
     }
 
-    private shoudMoveHorizontally(): boolean {
-        if (this.characterState === CharacterState.CLOSE_TO_LAND ||
-            this.characterState === CharacterState.THROWING_FREESBE_GROUND
-        ) {
-            return false;
+    private horizontalDisplacementeMultiplier(): number {
+
+        switch (this.characterState) {
+            case CharacterState.CLOSE_TO_LAND:
+                return 0.3
+                break;
+            case CharacterState.THROWING_FREESBE_GROUND:
+                return 0.5
+                break;
+
+            case CharacterState.ROLLING:
+                return 1.1
+                break;
+
+            default:
+                return 1
+                break;
         }
-        return true;
     }
 
     onBeforeRender() {
@@ -109,7 +120,7 @@ export class CharacterControll {
         }
         const DELTA_TIME = this.scene.getEngine().getDeltaTime();
         this.setNextState();
-
+        
         if (this.inputDirection.z === -1) {
             this.displayMesh.rotate(Vector3.Up(), -this.CHARACTER_ROTATION_SPEED);
         }
@@ -156,7 +167,8 @@ export class CharacterControll {
                 Vector3.Lerp(this.moveVelocity, this.V3_ZERO, this.FRICTION));
         }
 
-        this.shoudMoveHorizontally() && this.displayMesh.moveWithCollisions(this.moveVelocity);
+        //Horizontal displacement
+        this.displayMesh.moveWithCollisions(this.moveVelocity.scaleInPlace(this.horizontalDisplacementeMultiplier()));
         this.displayMesh.computeWorldMatrix(true);
 
         //chech surface angle
@@ -216,6 +228,7 @@ export class CharacterControll {
     setNextState() {
 
         const STANDING_ON_GROUND_DISTANCE = 1.02;
+        const CLOSE_TO_LAND_DISTANCE = 5;
         //Ray meassures 1.01 when standing on ground.
         //Not sure where it comes yet.
         //That value was taken from lxgs.
@@ -226,7 +239,35 @@ export class CharacterControll {
         }
 
         // state resolver
-        
+
+        //release roll
+        if (this.characterState === CharacterState.ROLLING) {
+
+            if (this.animationManager.lastAnimationFinishes) {
+            
+                if (downDistance < CLOSE_TO_LAND_DISTANCE && this.gravityVelocity._y < 0) {
+                    this.characterState = CharacterState.CLOSE_TO_LAND
+                }
+
+                if (downDistance < STANDING_ON_GROUND_DISTANCE) {
+                    this.characterState = CharacterState.RUNNING;
+                }
+
+                if (downDistance >= CLOSE_TO_LAND_DISTANCE) {
+                    this.characterState = CharacterState.JUMPING;
+                }
+            }
+
+            return;
+        }
+
+        //detect roll
+        if (this.characterIntention === CharacterIntention.WANTS_TO_ROLL &&
+            (this.characterState === CharacterState.JUMPING || this.characterState === CharacterState.RUNNING)
+        ) {
+            this.characterState = CharacterState.ROLLING;
+        }
+
         // release throw freesbe in air
         if (this.characterState === CharacterState.THROWING_FREESBE_IN_AIR) {
 

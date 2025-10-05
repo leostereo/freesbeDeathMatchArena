@@ -16,6 +16,7 @@ export class AnimationManager {
     private throw_freesbe_in_air_animation: CharacterAnimationItem;
     private walking_back_animation: CharacterAnimationItem;
     private in_air_animation: CharacterAnimationItem;
+    private roll_animation: CharacterAnimationItem;
 
     private currentAnimation: CharacterAnimationItem | null;
     //events particular frames
@@ -37,6 +38,7 @@ export class AnimationManager {
         this.throw_freesbe_in_air_animation = this.animationContainer.getAnimationByName(AnimationEnums.baseball_pitch);
         this.walking_back_animation = this.animationContainer.getAnimationByName(AnimationEnums.walking_backwards)
         this.in_air_animation = this.animationContainer.getAnimationByName(AnimationEnums.falling_idle);
+        this.roll_animation = this.animationContainer.getAnimationByName(AnimationEnums.sprinting_roll); 
 
         this.bindNotificationEvents();
 
@@ -69,6 +71,9 @@ export class AnimationManager {
         this.throw_freesbe_in_air_animation.animation.targetedAnimations[0].animation.addEvent(
             new AnimationEvent(EventFrameEnum.THROW_FREESBE_IN_AIR_SHOOT, () => this.throwFreesbe = true, true));
 
+        this.roll_animation.animation.targetedAnimations[0].animation.addEvent(
+            new AnimationEvent(this.roll_animation.control?.to!, this.informFinishedAnimation, true));
+
     }
 
     private informFinishedAnimation = () => {
@@ -79,6 +84,9 @@ export class AnimationManager {
     public updateAnimation(state: CharacterState) {
         const currenAnimation = this.animationContainer.getCurrentPlayingAnimation();
 
+        if(state === CharacterState.ROLLING && currenAnimation?.name !== this.roll_animation.name){
+            this.playControlledAnimation(this.roll_animation)
+        }
 
         if (state === CharacterState.THROWING_FREESBE_IN_AIR && currenAnimation?.name !== this.throw_freesbe_in_air_animation.name) {
             this.playControlledAnimation(this.throw_freesbe_in_air_animation);
