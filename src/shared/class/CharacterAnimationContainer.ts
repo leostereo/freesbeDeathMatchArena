@@ -19,7 +19,11 @@ export enum AnimationEnums {
     death_from_back_headshoot = "DEATH_FROM_BACK_HEADSHOOT",
     head_hit = "HEAD_HIT",
     dying = 'DYING',
-    has_won = 'HAS_WON'
+    has_won = 'HAS_WON',
+    right_turn = 'RIGHT_TURN',
+    left_turn = 'LEFT_TURN',
+    crouch = 'CROUCH',
+    crouched_throw = 'CROUCHED_THROW'
 }
 
 
@@ -347,6 +351,64 @@ export class CharacterAnimationContainer {
                 latched: false,
                 currentlyPlay: false,
                 name: AnimationEnums.walking_backwards
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const rightTurnAnimation = this.scene.getAnimationGroupByName(`${this.prefix}right turn`)
+        if (rightTurnAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: rightTurnAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.right_turn
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const leftTurnAnimation = this.scene.getAnimationGroupByName(`${this.prefix}left turn`)
+        if (leftTurnAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: leftTurnAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.right_turn
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const crouchAnimation = this.scene.getAnimationGroupByName(`${this.prefix}crouching`)
+        if (crouchAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: crouchAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.crouch,
+                control: {
+                    from: 50,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.8,
+                    to: 165
+                }
+            }
+            this.characterAnimationVector.push(animationItem);
+        }
+
+        const crouchedThrowAnimation = this.scene.getAnimationGroupByName(`${this.prefix}crounched throw`)
+        if (crouchedThrowAnimation) {
+            let animationItem: CharacterAnimationItem = {
+                animation: crouchedThrowAnimation,
+                latched: false,
+                currentlyPlay: false,
+                name: AnimationEnums.crouched_throw,
+                control: {
+                    from: 120,
+                    isAdditive: false,
+                    mustLoop: false,
+                    speedRatio: 1.8,
+                    to: 290
+                }
             }
             this.characterAnimationVector.push(animationItem);
         }

@@ -31,7 +31,7 @@ export class AssetsControll {
 
     loadAssets() {
 
-        const playerModelTask = this.assetsManager.addMeshTask("playerModelTask", "", "./model/", "ybotV6.glb");
+        const playerModelTask = this.assetsManager.addMeshTask("playerModelTask", "", "./model/", "ybotV7.glb");
 
         playerModelTask.onSuccess = (task) => {
             task.loadedAnimationGroups.map((anim)=>anim.stop())
