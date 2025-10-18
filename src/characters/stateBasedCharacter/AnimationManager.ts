@@ -17,6 +17,7 @@ export class AnimationManager {
     private walking_back_animation: CharacterAnimationItem;
     private in_air_animation: CharacterAnimationItem;
     private roll_animation: CharacterAnimationItem;
+    private crash_animation: CharacterAnimationItem;
 
     private currentAnimation: CharacterAnimationItem | null;
     //events particular frames
@@ -39,6 +40,7 @@ export class AnimationManager {
         this.walking_back_animation = this.animationContainer.getAnimationByName(AnimationEnums.walking_backwards)
         this.in_air_animation = this.animationContainer.getAnimationByName(AnimationEnums.falling_idle);
         this.roll_animation = this.animationContainer.getAnimationByName(AnimationEnums.sprinting_roll); 
+        this.crash_animation = this.animationContainer.getAnimationByName(AnimationEnums.falling_impact);
 
         this.bindNotificationEvents();
 
@@ -49,6 +51,9 @@ export class AnimationManager {
     private bindNotificationEvents = () => {
         this.landing_from_jump_animation.animation.targetedAnimations[0].animation.addEvent(
             new AnimationEvent(this.landing_from_jump_animation.control?.to!, this.informFinishedAnimation, true));
+
+        this.crash_animation.animation.targetedAnimations[0].animation.addEvent(
+            new AnimationEvent(this.crash_animation.control?.to!, this.informFinishedAnimation, true));
 
         this.throw_freesbe_animation.animation.targetedAnimations[0].animation.addEvent(
             new AnimationEvent(this.throw_freesbe_animation.control?.to!, this.informFinishedAnimation, true));
@@ -96,6 +101,10 @@ export class AnimationManager {
             this.playControlledAnimation(this.throw_freesbe_animation);
         }
 
+        if (state === CharacterState.CLOSE_TO_CRASH && currenAnimation?.name !== this.crash_animation.name) {
+            this.playControlledAnimation(this.crash_animation);
+        }
+
         if (state === CharacterState.CLOSE_TO_LAND && currenAnimation?.name !== this.landing_from_jump_animation.name) {
             this.playControlledAnimation(this.landing_from_jump_animation);
         }
@@ -105,6 +114,13 @@ export class AnimationManager {
             this.currentAnimation = this.jump_animation;
             this.playControlledAnimation(this.jump_animation);
             return;
+        }
+
+        
+        if(state === CharacterState.FALLING  && currenAnimation?.name !== this.in_air_animation.name ){
+            
+                this.playInloopAnimation(this.in_air_animation);
+                return;
         }
 
         if (state === CharacterState.WALKING_BACKWARDS && currenAnimation?.name !== this.walking_back_animation.name) {
@@ -129,7 +145,7 @@ export class AnimationManager {
         this.lastAnimationFinishes = false;
         animation.animation.play(true);
     }
-
+    
     private playControlledAnimation(animationItem: CharacterAnimationItem) {
         this.currentAnimation = animationItem;
         if (animationItem?.control) {

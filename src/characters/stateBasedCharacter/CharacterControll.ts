@@ -97,6 +97,9 @@ export class CharacterControll {
     private horizontalDisplacementeMultiplier(): number {
 
         switch (this.characterState) {
+            case CharacterState.CLOSE_TO_CRASH:
+                return 0.1
+                break;
             case CharacterState.CLOSE_TO_LAND:
                 return 0.3
                 break;
@@ -234,8 +237,9 @@ export class CharacterControll {
 
     private setNextState() {
 
+        const CLOSE_TO_LAND_DISTANCE = 2;
+        const FALLING_GRAVITY_VELOCITY = -0.3;
         const STANDING_ON_GROUND_DISTANCE = 1.02;
-        const CLOSE_TO_LAND_DISTANCE = 5;
         //Ray meassures 1.01 when standing on ground.
         //Not sure where it comes yet.
         //That value was taken from lxgs.
@@ -330,9 +334,35 @@ export class CharacterControll {
             }
         }
 
+        //release crash into land 
+        if (this.characterState === CharacterState.CLOSE_TO_CRASH) {
+    
+            if (this.animationManager.lastAnimationFinishes) {
+                if (this.inputDirection._x !== 0) {
+                    this.characterState = CharacterState.RUNNING
+                }
+                if (this.inputDirection._x === 0) {
+                    this.characterState = CharacterState.IDLE
+                }
+            }
+            return;
+        }
+
+        //detect crash into land
+        if ( this.characterState === CharacterState.FALLING &&
+            downDistance < CLOSE_TO_LAND_DISTANCE && this.gravityVelocity._y < 3 * FALLING_GRAVITY_VELOCITY) {
+                this.characterState = CharacterState.CLOSE_TO_CRASH;
+            return;
+        }
+
+        if(this.gravityVelocity.y < FALLING_GRAVITY_VELOCITY){
+            this.characterState = CharacterState.FALLING;
+            return;
+        }
+
         //release close to land 
         if (this.characterState === CharacterState.CLOSE_TO_LAND) {
-
+    
             if (this.animationManager.lastAnimationFinishes) {
                 if (this.inputDirection._x !== 0) {
                     this.characterState = CharacterState.RUNNING
@@ -346,7 +376,7 @@ export class CharacterControll {
 
         //detect close to land
         if ((this.characterState === CharacterState.JUMPING || this.characterState === CharacterState.FALLING) &&
-            downDistance < 5 && this.gravityVelocity._y < 0) {
+            downDistance < CLOSE_TO_LAND_DISTANCE && this.gravityVelocity._y < 0) {
             this.characterState = CharacterState.CLOSE_TO_LAND;
             return;
         }
@@ -356,6 +386,8 @@ export class CharacterControll {
             this.animationManager.jumpingImpulseIsOver = false;
             return;
         }
+
+
 
         if (this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING) {
             if (downDistance < STANDING_ON_GROUND_DISTANCE && this.characterIntention === CharacterIntention.WANTS_TO_JUMP) {
@@ -414,6 +446,12 @@ export class CharacterControll {
                 break;
             case 'bt':
                 this.characterIntention = muliplier ? CharacterIntention.WANTS_TO_RUN : CharacterIntention.DO_NOTHING;
+                break;
+            case 'q':
+                this.displayMesh.position = new Vector3(0,50,0)
+                break;
+            case 'w':
+                this.displayMesh.position = new Vector3(0,100,0)
                 break;
         }
     }

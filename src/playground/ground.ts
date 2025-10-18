@@ -172,8 +172,8 @@ export class Ground {
     );
 
     const box2 = MeshBuilder.CreateBox('box2',{height:1,depth:60,width:20});
-    box2.position = new Vector3(-10,0,-20);
-    box2.rotation = new Vector3(-Math.PI/20,0,0);
+    box2.position = new Vector3(-20,10,-10);
+    box2.rotation = new Vector3(-145,0,0);
     box2.checkCollisions = true
 
   }
