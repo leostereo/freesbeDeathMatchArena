@@ -279,7 +279,7 @@ export class CharacterControll {
         if (this.characterState === CharacterState.THROWING_FREESBE_IN_AIR) {
 
             if (this.animationManager.throwFreesbe) {
-                this.freesbeManager.thowFreesbe(this.displayMesh);
+                this.freesbeManager.thowFreesbe(this.displayMesh,true);
                 this.animationManager.throwFreesbe = false;
             }
 
