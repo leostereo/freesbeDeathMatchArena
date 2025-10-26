@@ -129,8 +129,13 @@ export class AnimationManager {
                 return;
         }
 
-        if(state === CharacterState.TURNING_RIGHT){
+        if(state === CharacterState.TURNING_RIGHT && currenAnimation?.name !== this.turn_right_animation.name){
             this.playInloopAnimation(this.turn_right_animation);
+            return;
+        }
+
+        if(state === CharacterState.TURNING_LEFT && currenAnimation?.name !== this.turn_left_animation.name){
+            this.playInloopAnimation(this.turn_left_animation);
             return;
         }
 

@@ -110,7 +110,7 @@ export class CharacterControll {
                 return 1.05
                 break;
             case CharacterState.ROLLING:
-                if(this.distanceToGround > 1.02){
+                if (this.distanceToGround > 1.02) {
                     return 1;
                 }
                 return 1.1
@@ -122,8 +122,8 @@ export class CharacterControll {
         }
     }
 
-    private canRotate():boolean{
-        if(this.characterState === CharacterState.CLOSE_TO_CRASH){
+    private canRotate(): boolean {
+        if (this.characterState === CharacterState.CLOSE_TO_CRASH) {
             return false;
         }
         return true;
@@ -138,11 +138,11 @@ export class CharacterControll {
         const DELTA_TIME = this.scene.getEngine().getDeltaTime();
         this.setNextState();
 
-        if(this.canRotate()){
+        if (this.canRotate()) {
             if (this.characterIntention === CharacterIntention.WANTS_TO_TURN_LEFT) {
                 this.displayMesh.rotate(Vector3.Up(), -this.CHARACTER_ROTATION_SPEED);
             }
-            
+
             if (this.characterIntention === CharacterIntention.WANTS_TO_TURN_RIGHT) {
                 this.displayMesh.rotate(Vector3.Up(), this.CHARACTER_ROTATION_SPEED);
             }
@@ -159,7 +159,7 @@ export class CharacterControll {
                 moveAdjust.addInPlace(this.displayMesh.forward)
             }
 
-            if (this.inputDirection._x === 1) {
+            if (this.inputDirection.x === 1) {
                 moveAdjust.subtractInPlace(this.displayMesh.forward)
             }
 
@@ -292,7 +292,7 @@ export class CharacterControll {
         if (this.characterState === CharacterState.THROWING_FREESBE_IN_AIR) {
 
             if (this.animationManager.throwFreesbe) {
-                this.freesbeManager.thowFreesbe(this.displayMesh,true);
+                this.freesbeManager.thowFreesbe(this.displayMesh, true);
                 this.animationManager.throwFreesbe = false;
             }
 
@@ -325,10 +325,10 @@ export class CharacterControll {
             }
 
             if (this.animationManager.lastAnimationFinishes) {
-                if (this.inputDirection._x !== 0) {
+                if (this.inputDirection.x !== 0) {
                     this.characterState = CharacterState.RUNNING
                 }
-                if (this.inputDirection._x === 0) {
+                if (this.inputDirection.x === 0) {
                     this.characterState = CharacterState.IDLE
                 }
             }
@@ -345,12 +345,12 @@ export class CharacterControll {
 
         //release crash into land 
         if (this.characterState === CharacterState.CLOSE_TO_CRASH) {
-    
+
             if (this.animationManager.lastAnimationFinishes) {
-                if (this.inputDirection._x !== 0) {
+                if (this.inputDirection.x !== 0) {
                     this.characterState = CharacterState.RUNNING
                 }
-                if (this.inputDirection._x === 0) {
+                if (this.inputDirection.x === 0) {
                     this.characterState = CharacterState.IDLE
                 }
             }
@@ -358,25 +358,25 @@ export class CharacterControll {
         }
 
         //detect crash into land
-        if ( this.characterState === CharacterState.FALLING &&
+        if (this.characterState === CharacterState.FALLING &&
             downDistance < CLOSE_TO_LAND_DISTANCE && this.gravityVelocity._y < 3 * FALLING_GRAVITY_VELOCITY) {
-                this.characterState = CharacterState.CLOSE_TO_CRASH;
+            this.characterState = CharacterState.CLOSE_TO_CRASH;
             return;
         }
 
-        if(this.gravityVelocity.y < FALLING_GRAVITY_VELOCITY){
+        if (this.gravityVelocity.y < FALLING_GRAVITY_VELOCITY) {
             this.characterState = CharacterState.FALLING;
             return;
         }
 
         //release close to land 
         if (this.characterState === CharacterState.CLOSE_TO_LAND) {
-    
+
             if (this.animationManager.lastAnimationFinishes) {
-                if (this.inputDirection._x !== 0) {
+                if (this.inputDirection.x !== 0) {
                     this.characterState = CharacterState.RUNNING
                 }
-                if (this.inputDirection._x === 0) {
+                if (this.inputDirection.x === 0) {
                     this.characterState = CharacterState.IDLE
                 }
             }
@@ -407,18 +407,37 @@ export class CharacterControll {
 
         //#region Horizontal move
         if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.RUNNING)
-            && (this.inputDirection._x === 1) && downDistance < STANDING_ON_GROUND_DISTANCE) {
+            && (this.inputDirection.x === 1) && downDistance < STANDING_ON_GROUND_DISTANCE) {
             this.characterState = CharacterState.WALKING_BACKWARDS;
             return;
         }
 
         if ((this.characterState === CharacterState.IDLE || this.characterState === CharacterState.WALKING_BACKWARDS)
-            && (this.inputDirection._x === -1) && downDistance < STANDING_ON_GROUND_DISTANCE) {
+            && (this.inputDirection.x === -1) && downDistance < STANDING_ON_GROUND_DISTANCE) {
             this.characterState = CharacterState.RUNNING;
             return;
         }
 
-        if (this.inputDirection._x === 0 && this.inputDirection._z === 0 && downDistance < STANDING_ON_GROUND_DISTANCE
+        if (this.characterState === CharacterState.TURNING_LEFT || this.characterState === CharacterState.TURNING_RIGHT) {
+            if(this.characterIntention === CharacterIntention.DO_NOTHING){
+                this.characterState = CharacterState.IDLE;
+            }
+            return;
+        }
+
+        if (this.characterState === CharacterState.IDLE) {
+            if (this.characterIntention === CharacterIntention.WANTS_TO_TURN_LEFT) {
+                this.characterState = CharacterState.TURNING_LEFT
+                return;
+            }
+            if (this.characterIntention === CharacterIntention.WANTS_TO_TURN_RIGHT) {
+                this.characterState = CharacterState.TURNING_RIGHT
+                return;
+            }
+        }
+        
+
+        if (this.inputDirection.x === 0 && this.inputDirection._z === 0 && downDistance < STANDING_ON_GROUND_DISTANCE
             && this.characterState !== CharacterState.START_JUMP && this.characterState !== CharacterState.JUMPING
         ) {
             this.characterState = CharacterState.IDLE;
@@ -457,10 +476,10 @@ export class CharacterControll {
                 this.characterIntention = muliplier ? CharacterIntention.WANTS_TO_RUN : CharacterIntention.DO_NOTHING;
                 break;
             case 'q':
-                this.displayMesh.position = new Vector3(0,50,0)
+                this.displayMesh.position = new Vector3(0, 50, 0)
                 break;
             case 'w':
-                this.displayMesh.position = new Vector3(0,100,0)
+                this.displayMesh.position = new Vector3(0, 100, 0)
                 break;
         }
     }

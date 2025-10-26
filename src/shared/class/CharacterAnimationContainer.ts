@@ -45,6 +45,8 @@ export type CharacterAnimationItem = {
 
 export class CharacterAnimationContainer {
 
+    private TURNING_IN_PLACE_RATIO = 2.5;
+
     private characterAnimationGroup: AnimationGroup[];
     private characterAnimationVector: CharacterAnimationItem[] = [];
     private scene: Scene;
@@ -357,6 +359,7 @@ export class CharacterAnimationContainer {
 
         const rightTurnAnimation = this.scene.getAnimationGroupByName(`${this.prefix}right turn`)
         if (rightTurnAnimation) {
+            rightTurnAnimation.speedRatio = this.TURNING_IN_PLACE_RATIO;
             let animationItem: CharacterAnimationItem = {
                 animation: rightTurnAnimation,
                 latched: false,
@@ -365,14 +368,15 @@ export class CharacterAnimationContainer {
             }
             this.characterAnimationVector.push(animationItem);
         }
-
+        
         const leftTurnAnimation = this.scene.getAnimationGroupByName(`${this.prefix}left turn`)
         if (leftTurnAnimation) {
+            leftTurnAnimation.speedRatio = this.TURNING_IN_PLACE_RATIO;
             let animationItem: CharacterAnimationItem = {
                 animation: leftTurnAnimation,
                 latched: false,
                 currentlyPlay: false,
-                name: AnimationEnums.right_turn
+                name: AnimationEnums.left_turn
             }
             this.characterAnimationVector.push(animationItem);
         }
