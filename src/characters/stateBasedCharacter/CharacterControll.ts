@@ -122,6 +122,13 @@ export class CharacterControll {
         }
     }
 
+    private canRotate():boolean{
+        if(this.characterState === CharacterState.CLOSE_TO_CRASH){
+            return false;
+        }
+        return true;
+    }
+
     onBeforeRender() {
 
         if (this.displayMesh.position.y < -10) {
@@ -131,12 +138,14 @@ export class CharacterControll {
         const DELTA_TIME = this.scene.getEngine().getDeltaTime();
         this.setNextState();
 
-        if (this.inputDirection.z === -1) {
-            this.displayMesh.rotate(Vector3.Up(), -this.CHARACTER_ROTATION_SPEED);
-        }
-
-        if (this.inputDirection.z === 1) {
-            this.displayMesh.rotate(Vector3.Up(), this.CHARACTER_ROTATION_SPEED);
+        if(this.canRotate()){
+            if (this.characterIntention === CharacterIntention.WANTS_TO_TURN_LEFT) {
+                this.displayMesh.rotate(Vector3.Up(), -this.CHARACTER_ROTATION_SPEED);
+            }
+            
+            if (this.characterIntention === CharacterIntention.WANTS_TO_TURN_RIGHT) {
+                this.displayMesh.rotate(Vector3.Up(), this.CHARACTER_ROTATION_SPEED);
+            }
         }
 
         //Physic main loop.
@@ -430,10 +439,10 @@ export class CharacterControll {
                 this.inputDirection.x = muliplier;
                 break;
             case playerData.left:
-                this.inputDirection.z = -muliplier;
+                this.characterIntention = muliplier ? CharacterIntention.WANTS_TO_TURN_LEFT : CharacterIntention.DO_NOTHING;
                 break;
             case playerData.right:
-                this.inputDirection.z = muliplier;
+                this.characterIntention = muliplier ? CharacterIntention.WANTS_TO_TURN_RIGHT : CharacterIntention.DO_NOTHING;
                 break;
             case playerData.throw:
                 this.characterIntention = muliplier ? CharacterIntention.WANTS_TO_THROW_FREESBE : CharacterIntention.DO_NOTHING;

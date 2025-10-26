@@ -18,6 +18,10 @@ export class AnimationManager {
     private in_air_animation: CharacterAnimationItem;
     private roll_animation: CharacterAnimationItem;
     private crash_animation: CharacterAnimationItem;
+    private turn_right_animation: CharacterAnimationItem;
+    private turn_left_animation: CharacterAnimationItem;
+
+
 
     private currentAnimation: CharacterAnimationItem | null;
     //events particular frames
@@ -41,6 +45,8 @@ export class AnimationManager {
         this.in_air_animation = this.animationContainer.getAnimationByName(AnimationEnums.falling_idle);
         this.roll_animation = this.animationContainer.getAnimationByName(AnimationEnums.sprinting_roll); 
         this.crash_animation = this.animationContainer.getAnimationByName(AnimationEnums.falling_impact);
+        this.turn_right_animation = this.animationContainer.getAnimationByName(AnimationEnums.right_turn);
+        this.turn_left_animation = this.animationContainer.getAnimationByName(AnimationEnums.left_turn);
 
         this.bindNotificationEvents();
 
@@ -121,6 +127,11 @@ export class AnimationManager {
             
                 this.playInloopAnimation(this.in_air_animation);
                 return;
+        }
+
+        if(state === CharacterState.TURNING_RIGHT){
+            this.playInloopAnimation(this.turn_right_animation);
+            return;
         }
 
         if (state === CharacterState.WALKING_BACKWARDS && currenAnimation?.name !== this.walking_back_animation.name) {
