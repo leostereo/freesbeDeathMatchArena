@@ -5,6 +5,7 @@ import { PhysicsBody, PhysicsMotionType, PhysicsPrestepType, PhysicsShapeBox, Ph
 import { GridMaterial } from "@babylonjs/materials";
 import { Color3, GlowLayer, HighlightLayer, Mesh, Quaternion, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
 import { PlatformClass } from "@/shared/class/PlatformsClass";
+import { ProceduralLevelClass } from "./proceduralLevel/ProceduralLevelClass";
 
 interface PlatformData {
   name: string;
@@ -23,18 +24,19 @@ export class Ground {
 
   private emissiveBlue: StandardMaterial;
   private platformClass: PlatformClass;
+  private proceduralLevel: ProceduralLevelClass;
 
   constructor(private scene: Scene) {
     this.scene = scene;
 
     this.emissiveBlue = new StandardMaterial("material", this.scene);
     this.emissiveBlue.emissiveColor = Color3.Blue();
+    this.proceduralLevel = new ProceduralLevelClass();
 
     this._createGround();
     //this._createElevators();
-    this.createWalls();
-
-    this.platformClass = new PlatformClass(this.scene);
+    //this.createWalls();
+    //this.platformClass = new PlatformClass(this.scene);
     //this.platformClass.buildPlatforms();
 
   }
@@ -160,20 +162,20 @@ export class Ground {
 
 
     //degub objects
-    
-    const box = MeshBuilder.CreateBox('box',{size:10});
-    box.position = new Vector3(5,0,-10);
+
+    const box = MeshBuilder.CreateBox('box', { size: 10 });
+    box.position = new Vector3(5, 0, -10);
     box.checkCollisions = true
 
     const boxAgg = new PhysicsAggregate(box,
-       PhysicsShapeType.BOX,
+      PhysicsShapeType.BOX,
       { mass: 0, friction: 0.9 },
       this.scene
     );
 
-    const box2 = MeshBuilder.CreateBox('box2',{height:1,depth:60,width:20});
-    box2.position = new Vector3(-20,10,-10);
-    box2.rotation = new Vector3(-145,0,0);
+    const box2 = MeshBuilder.CreateBox('box2', { height: 1, depth: 60, width: 20 });
+    box2.position = new Vector3(-20, 10, -10);
+    box2.rotation = new Vector3(-145, 0, 0);
     box2.checkCollisions = true
 
   }

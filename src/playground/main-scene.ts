@@ -1,4 +1,3 @@
-import { CharacterControll } from "@/characters/stateBasedCharacter/characterControll";
 import { Player1Data, Player2Data } from "@/shared/class/PlayerData";
 import { WebGPUEngine } from "@babylonjs/core/Engines/webgpuEngine";
 import { EventContainer } from "@/shared/class/EventContainer";
@@ -9,6 +8,7 @@ import { Scene } from "@babylonjs/core/scene";
 import * as GUI from '@babylonjs/gui'
 import "@babylonjs/loaders/glTF";
 import { Hud } from "./hud";
+import { CharacterControll } from "@/characters/stateBasedCharacter/CharacterControll";
 
 
 export default class MainScene {

@@ -22,11 +22,11 @@ export class AssetsControll {
 
         this.loadAssets();
         //
-        this.createEnvironment();
-        this.setSceneLightAndCamera();
+        //this.createEnvironment();
+        //this.setSceneLightAndCamera();
         this.createGround();
         //
-        this.assetsManager.load();
+        //this.assetsManager.load();
     }
 
     loadAssets() {
