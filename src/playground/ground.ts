@@ -31,7 +31,7 @@ export class Ground {
 
     this.emissiveBlue = new StandardMaterial("material", this.scene);
     this.emissiveBlue.emissiveColor = Color3.Blue();
-    this.proceduralLevel = new ProceduralLevelClass();
+    this.proceduralLevel = new ProceduralLevelClass(scene);
 
     this._createGround();
     //this._createElevators();

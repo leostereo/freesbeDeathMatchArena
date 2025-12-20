@@ -27,6 +27,7 @@ export type Tile = {
     tile_type: Tile_Type;
     connection_tiles: NeighBour;
     forbidden_tiles: NeighBour;
+    tileRenderRules:TileRenderRules;
 }
 
 export type MapSlot = {
@@ -64,3 +65,20 @@ export enum TilesUnicodeEnum {
     '4d'='.', 
     '[]'='[]', 
 }
+
+export type TileRenderRules = {
+    baseTileGroup:BaseTileGroups;
+    rotation:number;
+}
+
+export type BaseTileGroups = 'group-|' | 'group-L' | 'group-T' | 'group-.'
+// export type BaseTile = {
+//   group_id: BaseTileGroups
+//   filled_blocks : BaseTileFilledBlock[]
+// }
+
+
+// export type BaseTileFilledBlock = {
+//     col:number,
+//     row:number,
+// }

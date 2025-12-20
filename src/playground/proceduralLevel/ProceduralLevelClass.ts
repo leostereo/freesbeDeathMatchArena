@@ -1,6 +1,8 @@
 import { FloorMap } from "@/shared/types/ProceduralLevel";
 import { FloorMapClass } from "./FloorMapClass";
 import { TileContainerClass } from "./TileContainerClass";
+import { FloorMeshBuilderClass } from "./FloorMeshBuilderClass";
+import { Scene } from "@babylonjs/core";
 
 export class ProceduralLevelClass {
 
@@ -8,7 +10,8 @@ export class ProceduralLevelClass {
     private floorMap: FloorMapClass;
     private floorVector: FloorMap[];
 
-    constructor() {
+    constructor(private scene:Scene) {
+        
         this.tileContainer = new TileContainerClass();
         this.floorMap = new FloorMapClass({
             begining_position: { col_index: 0, row_index: 0 },
@@ -21,6 +24,7 @@ export class ProceduralLevelClass {
     }
 
     init_Level() {
-        this.floorMap.buildFloorMap()
+        const floorMapDiagram: FloorMap = this.floorMap.buildFloorMapDiagram();
+        const floorMeshBuilderClass = new FloorMeshBuilderClass(floorMapDiagram,this.tileContainer,this.scene)
     }
 }

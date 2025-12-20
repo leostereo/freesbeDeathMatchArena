@@ -17,6 +17,7 @@ const above_Eforbidden_group:Tile_ids[] = ['1a','2c','2d','3b','3c','3d','4c'];
 const under_Eforbidden_group:Tile_ids[] = ['1a','2a','2b','3a','3b','3d','4a'];
 
 
+
 export const getTilesDefinition = ():Tile[] => {
     const tilesDefinition: Tile[] = [
         {
@@ -34,6 +35,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Fforbidden_group,
                 under: under_Fforbidden_group,
             },
+            tileRenderRules:{
+                rotation:0,
+                baseTileGroup:"group-I"
+            }
         },
         {
             id_code: "1b",
@@ -50,6 +55,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Eforbidden_group,
                 under: under_Eforbidden_group,
             },
+            tileRenderRules:{
+                rotation:Math.PI/2,
+                baseTileGroup:"group-I"
+            }
         },
         {
             id_code: "1c",
@@ -66,6 +75,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: [],
                 under: []
             },
+            tileRenderRules:{
+                rotation:Math.PI,
+                baseTileGroup:"group-I"
+            }
         },
         {
             id_code: "2a",
@@ -82,6 +95,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Fforbidden_group,
                 under: under_Eforbidden_group,
             },
+            tileRenderRules:{
+                rotation:0,
+                baseTileGroup:"group-L"
+            }
         },
         {
             id_code: "2b",
@@ -98,6 +115,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Fforbidden_group,
                 under: under_Eforbidden_group,
             },
+            tileRenderRules:{
+                rotation:Math.PI/2,
+                baseTileGroup:"group-L"
+            }
         },
         {
             id_code: "2c",
@@ -114,6 +135,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Eforbidden_group,
                 under: under_Fforbidden_group
             },
+            tileRenderRules:{
+                rotation:Math.PI,
+                baseTileGroup:"group-L"
+            }
         },
         {
             id_code: "2d",
@@ -130,6 +155,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Eforbidden_group,
                 under: under_Fforbidden_group
             },
+            tileRenderRules:{
+                rotation:3*Math.PI/2,
+                baseTileGroup:"group-L"
+            }
         },
         {
             id_code: "3a",
@@ -146,6 +175,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Fforbidden_group,
                 under: under_Eforbidden_group,
             },
+            tileRenderRules:{
+                rotation:0,
+                baseTileGroup:"group-T"
+            }
         },
         {
             id_code: "3b",
@@ -162,6 +195,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Fforbidden_group,
                 under: under_Fforbidden_group
             },
+            tileRenderRules:{
+                rotation:Math.PI/2,
+                baseTileGroup:"group-T"
+            }
         },
         {
             id_code: "3c",
@@ -178,6 +215,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Eforbidden_group,
                 under: under_Fforbidden_group
             },
+            tileRenderRules:{
+                rotation:Math.PI,
+                baseTileGroup:"group-T"
+            }
         },
         {
             id_code: "3d",
@@ -194,6 +235,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Fforbidden_group,
                 under: under_Fforbidden_group
             },
+            tileRenderRules:{
+                rotation:3*Math.PI/2,
+                baseTileGroup:"group-T"
+            }
         },
         {
             id_code: "4a",
@@ -210,6 +255,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Fforbidden_group,
                 under: under_Eforbidden_group
             },
+            tileRenderRules:{
+                rotation:0,
+                baseTileGroup:"group-."
+            }
         },
         {
             id_code: "4b",
@@ -225,7 +274,10 @@ export const getTilesDefinition = ():Tile[] => {
                 next: next_Fforbidden_group,
                 above: above_Eforbidden_group,
                 under: under_Eforbidden_group
-            },
+            },tileRenderRules:{
+                rotation:Math.PI/2,
+                baseTileGroup:"group-."
+            }
         },
         {
             id_code: "4c",
@@ -242,6 +294,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Eforbidden_group,
                 under: under_Fforbidden_group
             },
+            tileRenderRules:{
+                rotation:Math.PI,
+                baseTileGroup:"group-."
+            }
         },
         {
             id_code: "4d",
@@ -258,6 +314,10 @@ export const getTilesDefinition = ():Tile[] => {
                 above: above_Eforbidden_group,
                 under: under_Eforbidden_group
             },
+            tileRenderRules:{
+                rotation:3*Math.PI/2,
+                baseTileGroup:"group-."
+            }
         }
     ]
 

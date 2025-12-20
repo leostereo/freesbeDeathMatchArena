@@ -8,7 +8,6 @@ export class FloorMapClass {
     private MAX_ROWS = 0;
     private MAX_COLS = 0;
     private floorMap: FloorMap = [];
-    //private slotMap: Map<SlotCoord, MapSlot> = new Map();
 
     constructor(floorMapData: FloorMapData) {
         this.tileContainer = floorMapData.tileContainer;
@@ -17,11 +16,11 @@ export class FloorMapClass {
         this.begining_position = floorMapData.begining_position;
     }
 
-    public buildFloorMap() {
+    public buildFloorMapDiagram():FloorMap {
         this.setInitialSlot();
         this.fillPendingSlots();
-        this.renderFloorMap()
-
+        this.renderFloorMap();
+        return this.floorMap;
     }
 
     private setInitialSlot() {

@@ -92,7 +92,9 @@ class App {
 
       window.addEventListener("keydown", (ev) => {
         // Shift+Ctrl+Alt+I
-        if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+        if (ev.shiftKey) {
+        // if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+          alert('debug')
           if (this.scene.debugLayer.isVisible()) {
             this.scene.debugLayer.hide();
           } else {
